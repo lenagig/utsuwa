@@ -6,12 +6,10 @@ export default function Home() {
       <section className="titlePanel" aria-labelledby="title-heading">
         <div className="brand">
           <h1 id="title-heading">器</h1>
-          <p>UTSUWA</p>
         </div>
 
         <p className="intro">
           あなたがイラッとした人の行動を入力してください。
-          <br />
           AIがその行動から、その人にふさわしい器を選びます。
         </p>
 
