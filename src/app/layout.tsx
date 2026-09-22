@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UTSUWA",
+  title: "器",
   description: "身近なイライラを器に変えるAIプロダクト"
 };
 
