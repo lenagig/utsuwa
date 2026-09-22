@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>器 | UTSUWA</title>
+  <style>
+    :root { --gold:#f3cf81; --line:#ba7925; --amber:#d98227; --ink:#130c09e8; --paper:#fff3dc; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--paper); font-family:"Yu Mincho","Hiragino Mincho ProN","Yu Gothic",serif; background:linear-gradient(90deg,#090504b8,#1a0c05a8),url('images/museum-bg.png') center/cover fixed; }
+    main { min-height:100vh; display:grid; place-items:center; padding:28px 20px 110px; }
+    .view { display:none; width:min(100%,680px); max-height:calc(100vh - 125px); overflow:auto; padding:34px; border:1px solid var(--line); border-radius:20px; background:var(--ink); box-shadow:0 20px 55px #0009; backdrop-filter:blur(8px); }
+    .view.active { display:block; animation:rise .28s ease-out; }
+    @keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+    h1,h2,p { margin-top:0; }
+    h1,h2 { color:var(--gold); font-weight:400; text-align:center; }
+    h1 { margin-bottom:0; font-size:clamp(56px,13vw,82px); letter-spacing:.12em; }
+    h2 { font-size:clamp(34px,8vw,48px); }
+    .sub,.eyebrow { color:var(--gold); text-align:center; letter-spacing:.3em; }
+    .eyebrow { font-size:13px; margin-bottom:12px; }
+    .lead { text-align:center; line-height:1.8; color:#e7d4ae; }
+    textarea,select { width:100%; padding:14px; border:1px solid var(--line); border-radius:14px; background:#110a08cc; color:var(--paper); font:inherit; }
+    textarea { min-height:100px; resize:vertical; }
+    .btn { width:100%; margin-top:14px; padding:14px 16px; border:1px solid #f0b049; border-radius:14px; background:linear-gradient(90deg,#b45b16,#df8a2b); color:white; font:700 16px "Yu Gothic",sans-serif; cursor:pointer; }
+    .btn.alt { background:transparent; color:var(--paper); }
+    .nav { display:flex; gap:10px; position:fixed; z-index:2; bottom:25px; left:50%; transform:translateX(-50%); width:min(calc(100% - 28px),520px); }
+    .nav button { flex:1; padding:12px 6px; border:1px solid var(--line); border-radius:14px; background:#160d0ae8; color:#fff6e7; font:700 15px "Yu Gothic",sans-serif; cursor:pointer; }
+    .action-box { margin:18px 0; padding:14px; border-left:3px solid var(--gold); background:#ffffff0b; color:#ead9bd; line-height:1.7; }
+    .vessel-image { display:block; width:100%; aspect-ratio:1/1; object-fit:cover; border:1px solid #8f5c24; border-radius:14px; background:#2a211c; }
+    .vessel-name { margin:14px 0 8px; overflow-x:auto; white-space:nowrap; text-align:center; color:var(--gold); font-size:32px; line-height:1.3; font-weight:400; }
+    .caption { text-align:center; color:#d9c29a; line-height:1.75; }
+    .catalog-view { width:min(100%,1260px); max-height:none; overflow:visible; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
+    .catalog-title { margin:0 0 16px; text-shadow:0 2px 14px #000; }
+    .book { min-height:min(67vw,700px); padding:clamp(44px,7vw,92px) clamp(55px,8vw,142px); background:url('images/catalog-book.png') center/contain no-repeat; display:grid; align-items:center; }
+    .catalog-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:clamp(10px,2vw,28px); }
+    .card { padding:0; overflow:hidden; border:1px solid #79521f; border-radius:8px; background:#100a08d9; color:inherit; cursor:pointer; text-align:left; }
+    .card img { display:block; width:100%; aspect-ratio:1; object-fit:cover; }
+    .card span { display:block; padding:9px; color:#f2d58f; font:700 14px "Yu Gothic",sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card.locked { cursor:default; filter:grayscale(1); }
+    .card.locked img { opacity:.22; }
+    .card.locked span { color:#4d351f; text-align:center; font-size:20px; }
+    .book-nav { display:flex; justify-content:space-between; align-items:center; margin-top:-56px; padding:0 5%; position:relative; z-index:1; }
+    .page-arrow { min-width:54px; min-height:54px; border:1px solid #e0ad4d; border-radius:50%; background:#24150acf; color:var(--gold); font-size:36px; line-height:1; cursor:pointer; }
+    .page-arrow:disabled { visibility:hidden; }
+    .page-number { color:#3f2715; font:700 14px "Yu Gothic",sans-serif; text-shadow:0 1px #edd39e; }
+    .stat { display:flex; justify-content:space-between; gap:16px; padding:15px 0; border-bottom:1px solid #765327; font-family:"Yu Gothic",sans-serif; }
+    .stat b { color:var(--gold); font-size:22px; }
+    .arena { margin:16px 0; height:250px; display:grid; place-items:center; border:1px solid #805321; border-radius:14px; background:linear-gradient(#13080555,#13080588),url('images/battle-arena.png') center/cover; font-size:66px; text-shadow:0 3px 12px #000; }
+    .battle-name { text-align:center; color:#e8d0a0; }
+    .small { font-size:13px; color:#d2bd96; }
+    @media (min-width:900px) { .view:not(.catalog-view) { width:720px; padding:42px; } .vessel-image { max-height:480px; object-fit:cover; } }
+    @media (max-width:640px) { .catalog-view { width:100%; } .book { padding:52px 42px; min-height:620px; background-size:auto 100%; } .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; } }
+    @media (max-width:430px) { .view { padding:24px 20px; } .vessel-name { font-size:30px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="view active" id="home">
+      <h1>器</h1><div class="sub">UTSUWA</div>
+      <p class="lead">今日出会った、忘れられない人。<br>その人の器を、図鑑から選びます。</p>
+      <textarea id="action" placeholder="どんな行動をしていた？"></textarea>
+      <button class="btn" onclick="selectVessel()">器を選んでもらう</button>
+    </section>
+
+    <section class="view" id="result">
+      <div class="eyebrow">あなたが見た器</div>
+      <div class="action-box"><span class="small">入力した内容</span><br><span id="actionText"></span></div>
+      <img id="vesselImage" class="vessel-image" alt="選ばれた器">
+      <div class="vessel-name" id="vesselName"></div>
+      <p class="caption" id="vesselDesc"></p>
+      <button class="btn" onclick="show('battle')">この器でバトルする</button>
+      <button class="btn alt" onclick="show('home')">入力に戻る</button>
+    </section>
+
+    <section class="view catalog-view" id="catalog">
+      <h2 class="catalog-title">図鑑</h2>
+      <div class="book"><div id="catalogGrid" class="catalog-grid"></div></div>
+      <div class="book-nav"><button id="prevPage" class="page-arrow" onclick="changeCatalogPage(-1)" aria-label="前のページ">‹</button><span id="pageNumber" class="page-number"></span><button id="nextPage" class="page-arrow" onclick="changeCatalogPage(1)" aria-label="次のページ">›</button></div>
+      <button class="btn alt" onclick="show('home')">戻る</button>
+    </section>
+
+    <section class="view" id="battle">
+      <h2>バトル</h2>
+      <p class="battle-name" id="battleName">まずは器を選んでください</p>
+      <div class="arena">🔴　💥　🔵</div>
+      <p class="caption">対戦演出は準備中です。選んだ器はここで使われます。</p>
+      <button class="btn alt" onclick="show('home')">戻る</button>
+    </section>
+
+    <section class="view" id="weather">
+      <h2>天気予報</h2>
+      <p class="lead">今日、全国で生まれた器</p>
+      <div class="stat"><span>本日できた器</span><b id="todayCount">0 個</b></div>
+      <div class="stat"><span>観測日</span><b id="todayDate"></b></div>
+      <p class="small">日付が変わると、この数字は自動的にゼロから数え直します。</p>
+      <button class="btn alt" onclick="show('home')">戻る</button>
+    </section>
+  </main>
+  <nav class="nav"><button onclick="show('catalog')">図鑑</button><button onclick="show('battle')">バトル</button><button onclick="show('weather')">天気予報</button></nav>
+
+  <script>
+    const vessels = [
+      ['ゴブリンが舐め倒したマグカップ','goblin-mug.png','不快なほど記憶に残る、ぬめり気味の一杯。'],
+      ['神殺しのタンブラー','godslayer-tumbler.png','信念まで冷たく、熱く保つ黒い器。'],
+      ['社会のゴミ箱','social-bin.png','見て見ぬふりされたものを、全部ため込む。'],
+      ['電気ウナギの浴槽','eel-bath.png','近づくほど、じわりとしびれる。'],
+      ['琵琶湖の最終兵器','biwako-weapon.png','静かな水面の下に、切り札を隠している。'],
+      ['200℃の毒指入り弁当箱','poison-bento.png','熱さと危うさを、きっちり閉じ込めた器。'],
+      ['親の形見サラダボウル','heirloom-salad-bowl.png','思い出まで、やさしく盛りつける。'],
+      ['サルモネラ菌入りラーメンどんぶり','salmonella-ramen.png','見た目はおいしそう。でも油断は禁物。'],
+      ['人生のクーラーBOX','life-coolerbox.png','熱くなりすぎた気持ちを、いったん冷やす。'],
+      ['世界の金庫','world-safe.png','大事なものを、重く静かに守り抜く。'],
+      ['政治家の倫理観プール','ethics-pool.png','深そうに見えて、足首ほどの深さ。'],
+      ['死骸煮込みカクテル','corpse-cocktail.png','禁断の材料を、優雅な一杯にしたもの。'],
+      ['アフリカ産シャンパングラス','africa-champagne.png','遠い土地の時間を映した、繊細なグラス。'],
+      ['100均の壺','daiso-pot.png','手軽なのに、意外と抱え込める壺。'],
+      ['普通の茶碗','ordinary-rice-bowl.png','派手さはない。でも毎日を受け止める。']
+    ].map(([name,asset,desc]) => ({name,asset,desc}));
+    let picked = vessels[14];
+    const dayKey = 'utsuwa-daily-generation';
+    const dateKey = () => new Date().toLocaleDateString('ja-JP');
+    function daily() { const saved = JSON.parse(localStorage.getItem(dayKey) || 'null'); return saved && saved.date === dateKey() ? saved : {date:dateKey(),count:0}; }
+    function updateWeather() { const data = daily(); localStorage.setItem(dayKey,JSON.stringify(data)); document.querySelector('#todayCount').textContent = data.count + ' 個'; document.querySelector('#todayDate').textContent = data.date; }
+    function show(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.querySelector('#' + id).classList.add('active'); if(id === 'weather') updateWeather(); }
+    function render(v, action) { picked=v; document.querySelector('#actionText').textContent=action; document.querySelector('#vesselImage').src='../../images/vessels/'+v.asset; document.querySelector('#vesselImage').alt=v.name; document.querySelector('#vesselName').textContent=v.name; document.querySelector('#vesselDesc').textContent=v.desc; document.querySelector('#battleName').textContent='選択中：'+v.name; }
+    const unlockKey = 'utsuwa-unlocked-vessels';
+    let catalogPage = 0;
+    function unlocked() { return JSON.parse(localStorage.getItem(unlockKey) || '[]'); }
+    function renderCatalog() { const known=unlocked(); const pages=Math.ceil(vessels.length / 8); catalogPage=Math.max(0,Math.min(catalogPage,pages-1)); const start=catalogPage*8; document.querySelector('#catalogGrid').innerHTML=vessels.slice(start,start+8).map((v,offset)=>{ const i=start+offset; const open=known.includes(v.asset); return `<button class="card ${open?'':'locked'}" ${open?`onclick="openCatalog(${i})"`:''}><img src="../../images/vessels/${v.asset}" alt="${open?v.name:'未解放の器'}"><span>${open?v.name:'？'}</span></button>`; }).join(''); document.querySelector('#pageNumber').textContent=`${catalogPage+1} / ${pages}`; document.querySelector('#prevPage').disabled=catalogPage===0; document.querySelector('#nextPage').disabled=catalogPage===pages-1; }
+    function changeCatalogPage(step) { catalogPage += step; renderCatalog(); }
+    function selectVessel() { const action=document.querySelector('#action').value.trim() || 'どんな人だったか、まだ言葉にならない。'; const score=[...action].reduce((n,c)=>n+c.codePointAt(0),0); const vessel=vessels[score % vessels.length]; render(vessel,action); const known=unlocked(); if(!known.includes(vessel.asset)) { known.push(vessel.asset); localStorage.setItem(unlockKey,JSON.stringify(known)); } renderCatalog(); const d=daily(); d.count++; localStorage.setItem(dayKey,JSON.stringify(d)); show('result'); }
+    function openCatalog(i) { render(vessels[i],'図鑑から選んだ器です。'); show('result'); }
+    renderCatalog();
+    updateWeather();
+  </script>
+</body>
+</html>
