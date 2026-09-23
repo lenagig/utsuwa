@@ -293,6 +293,164 @@ button {
   transform: translateY(1px);
 }
 
+.catalogPage,
+.utilityPage {
+  grid-template-rows: 1fr;
+  padding-bottom: clamp(32px, 9svh, 156px);
+}
+
+.catalogPanel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  width: min(100%, 1040px);
+}
+
+.catalogTitle,
+.utilityTitle {
+  margin: 0 0 18px;
+  color: #ffe2a5;
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 190, 93, 0.22);
+}
+
+.catalogBook {
+  display: grid;
+  align-items: center;
+  width: min(100%, 980px);
+  min-height: clamp(470px, 58vw, 650px);
+  padding: clamp(58px, 8vw, 92px) clamp(72px, 10vw, 138px);
+  background: url("/images/catalog-book.png") center / contain no-repeat;
+}
+
+.catalogGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.8vw, 20px);
+  width: 100%;
+}
+
+.catalogCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(121, 82, 31, 0.9);
+  border-radius: 8px;
+  color: inherit;
+  background: rgba(16, 10, 8, 0.86);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+}
+
+.catalogCard:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.catalogCard img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.catalogCard span {
+  display: block;
+  overflow: hidden;
+  padding: 8px;
+  color: #f2d58f;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalogCard.locked {
+  cursor: default;
+  filter: grayscale(1);
+}
+
+.catalogCard.locked img {
+  opacity: 0.22;
+}
+
+.catalogCard.locked span {
+  color: rgba(242, 213, 143, 0.42);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.catalogBack {
+  margin-top: -20px;
+}
+
+.utilityPanel {
+  justify-items: center;
+  min-height: clamp(500px, 68svh, 580px);
+  text-align: center;
+}
+
+.utilityLead {
+  margin: 0 0 22px;
+  color: rgba(250, 229, 195, 0.92);
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+  line-height: 1.8;
+}
+
+.utilityText {
+  margin: 18px 0 42px;
+  color: rgba(250, 229, 195, 0.82);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.battleArena {
+  display: grid;
+  place-items: center;
+  width: min(100%, 310px);
+  min-height: 210px;
+  border: 1px solid rgba(204, 147, 55, 0.72);
+  border-radius: 12px;
+  color: #ffe2a5;
+  background:
+    linear-gradient(rgba(19, 8, 5, 0.36), rgba(19, 8, 5, 0.64)),
+    url("/images/battle-arena.png") center / cover;
+  font-size: 1.4rem;
+  text-shadow: 0 3px 12px #000;
+}
+
+.weatherStats {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 8px 0 22px;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+.weatherStats div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(204, 147, 55, 0.42);
+}
+
+.weatherStats dt {
+  color: rgba(250, 229, 195, 0.84);
+}
+
+.weatherStats dd {
+  margin: 0;
+  color: #ffe2a5;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .titlePage {
     height: auto;
@@ -330,6 +488,20 @@ button {
 
   .resultPanel {
     min-height: auto;
+  }
+
+  .catalogBook {
+    min-height: 640px;
+    padding: 62px 42px;
+    background-size: auto 100%;
+  }
+
+  .catalogGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .catalogBack {
+    margin-top: 18px;
   }
 }
 
@@ -370,5 +542,20 @@ button {
 
   .resultFeature {
     margin-bottom: 34px;
+  }
+
+  .catalogPage,
+  .utilityPage {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .catalogBook {
+    min-height: 460px;
+  }
+
+  .utilityPanel {
+    min-height: 500px;
+    padding-top: 34px;
   }
 }

@@ -2,12 +2,14 @@ import type { Vessel } from "@/types/vessel";
 
 type ResultScreenProps = {
   irritationText: string;
+  onBattle: () => void;
   vessel: Vessel;
   onBack: () => void;
 };
 
 export function ResultScreen({
   irritationText,
+  onBattle,
   vessel,
   onBack
 }: ResultScreenProps) {
@@ -33,7 +35,7 @@ export function ResultScreen({
         <p className="resultFeature">{vessel.feature}</p>
 
         <div className="resultActions">
-          <button className="primaryAction" type="button">
+          <button className="primaryAction" onClick={onBattle} type="button">
             器でバトルする
           </button>
           <button className="secondaryAction" onClick={onBack} type="button">
