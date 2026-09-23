@@ -1,23 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Vessel } from "@/types/vessel";
 
 type CatalogScreenProps = {
   onBack: () => void;
+  onPageChange: (pageIndex: number) => void;
   onOpenVessel: (vessel: Vessel) => void;
+  pageIndex: number;
   unlockedVesselIds: string[];
   vessels: Vessel[];
 };
 
 export function CatalogScreen({
   onBack,
+  onPageChange,
   onOpenVessel,
+  pageIndex,
   unlockedVesselIds,
   vessels
 }: CatalogScreenProps) {
-  const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 8;
   const totalPages = Math.ceil(vessels.length / pageSize);
   const visibleVessels = useMemo(
@@ -66,7 +69,7 @@ export function CatalogScreen({
             aria-label="前のページ"
             className="catalogArrow"
             disabled={!canGoPrevious}
-            onClick={() => setPageIndex((current) => current - 1)}
+            onClick={() => onPageChange(pageIndex - 1)}
             type="button"
           >
             ‹
@@ -78,7 +81,7 @@ export function CatalogScreen({
             aria-label="次のページ"
             className="catalogArrow"
             disabled={!canGoNext}
-            onClick={() => setPageIndex((current) => current + 1)}
+            onClick={() => onPageChange(pageIndex + 1)}
             type="button"
           >
             ›
