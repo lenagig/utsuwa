@@ -1,0 +1,92 @@
+.resultPage {
+  grid-template-rows: 1fr;
+  padding-bottom: clamp(32px, 9svh, 156px);
+}
+
+.resultPanel {
+  justify-items: center;
+  width: min(100%, 520px);
+  min-height: clamp(520px, 74svh, 590px);
+  padding-top: clamp(42px, 7svh, 58px);
+  padding-bottom: clamp(28px, 5svh, 36px);
+  text-align: center;
+}
+
+.resultOwner {
+  margin: 0 0 18px;
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(250, 229, 195, 0.94);
+  font-size: clamp(0.86rem, 1.7vw, 1rem);
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultTitle {
+  margin: 0 0 10px;
+  color: #ffe2a5;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.2;
+  text-shadow: 0 0 14px rgba(255, 190, 93, 0.2);
+}
+
+.vesselResultImage {
+  display: grid;
+  place-items: center;
+  width: min(100%, 440px);
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(210, 146, 45, 0.92);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+}
+
+.vesselResultImage img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.resultFeature {
+  margin: 0 0 54px;
+  color: rgba(250, 229, 195, 0.88);
+  font-size: clamp(0.82rem, 1.6vw, 0.9rem);
+  line-height: 1.8;
+}
+
+.resultActions {
+  align-self: end;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .resultPage {
+    padding-bottom: 24px;
+  }
+
+  .resultPanel {
+    min-height: auto;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 641px) {
+  .resultPage {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .resultPanel {
+    min-height: 560px;
+    padding-top: 34px;
+  }
+
+  .resultFeature {
+    margin-bottom: 34px;
+  }
+}
