@@ -2,13 +2,19 @@
 
 import { FormEvent, useState } from "react";
 
-const navItems = ["図鑑", "バトル", "天気予報"];
-
 type TitleScreenProps = {
+  onOpenBattle: () => void;
+  onOpenCatalog: () => void;
+  onOpenWeather: () => void;
   onSelectVessel: (inputText: string) => void;
 };
 
-export function TitleScreen({ onSelectVessel }: TitleScreenProps) {
+export function TitleScreen({
+  onOpenBattle,
+  onOpenCatalog,
+  onOpenWeather,
+  onSelectVessel
+}: TitleScreenProps) {
   const [inputText, setInputText] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -43,11 +49,15 @@ export function TitleScreen({ onSelectVessel }: TitleScreenProps) {
       </section>
 
       <nav className="titleNav" aria-label="メインメニュー">
-        {navItems.map((item) => (
-          <button key={item} type="button">
-            {item}
-          </button>
-        ))}
+        <button onClick={onOpenCatalog} type="button">
+          図鑑
+        </button>
+        <button onClick={onOpenBattle} type="button">
+          バトル
+        </button>
+        <button onClick={onOpenWeather} type="button">
+          天気予報
+        </button>
       </nav>
     </main>
   );
