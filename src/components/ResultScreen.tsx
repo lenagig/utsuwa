@@ -5,24 +5,22 @@ type ResultScreenProps = {
   onBattle: () => void;
   vessel: Vessel;
   onBack: () => void;
+  showOwner?: boolean;
 };
 
 export function ResultScreen({
   irritationText,
   onBattle,
   vessel,
-  onBack
+  onBack,
+  showOwner = true
 }: ResultScreenProps) {
   const ownerText = irritationText || "〜〜";
 
   return (
     <main className="titlePage resultPage">
       <section className="titlePanel resultPanel" aria-labelledby="result-title">
-        <p className="resultOwner">{ownerText}の器は</p>
-        <h1 className="resultTitle" id="result-title">
-          {vessel.name}
-        </h1>
-
+        {showOwner ? <p className="resultOwner">{ownerText}の器は</p> : null}
         <div className="vesselResultImage">
           {vessel.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -32,6 +30,10 @@ export function ResultScreen({
           )}
         </div>
 
+        <h1 className="resultTitle" id="result-title">
+          {vessel.name}
+        </h1>
+
         <p className="resultFeature">{vessel.feature}</p>
 
         <div className="resultActions">
@@ -39,7 +41,7 @@ export function ResultScreen({
             器でバトルする
           </button>
           <button className="secondaryAction" onClick={onBack} type="button">
-            入力に戻る
+            戻る
           </button>
         </div>
       </section>

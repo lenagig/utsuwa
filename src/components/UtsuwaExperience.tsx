@@ -10,6 +10,7 @@ import { WeatherScreen } from "@/components/WeatherScreen";
 import type { Vessel } from "@/types/vessel";
 
 type View = "title" | "result" | "catalog" | "battle" | "weather";
+type ResultSource = "input" | "catalog";
 
 type DailyGeneration = {
   count: number;
@@ -58,6 +59,8 @@ function readDailyGeneration() {
 
 export function UtsuwaExperience() {
   const [view, setView] = useState<View>("title");
+  const [resultSource, setResultSource] = useState<ResultSource>("input");
+  const [catalogPageIndex, setCatalogPageIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [unlockedVesselIds, setUnlockedVesselIds] =
@@ -98,14 +101,22 @@ export function UtsuwaExperience() {
 
     setIrritationText(inputText.trim());
     setSelectedVessel(nextVessel);
+    setResultSource("input");
     unlockVessel(nextVessel.id);
     countDailyGeneration();
     setView("result");
   }
 
   function handleOpenVessel(vessel: Vessel) {
+    const vesselIndex = vessels.findIndex((catalogVessel) => catalogVessel.id === vessel.id);
+
+    if (vesselIndex >= 0) {
+      setCatalogPageIndex(Math.floor(vesselIndex / 8));
+    }
+
     setSelectedVessel(vessel);
     setIrritationText("図鑑から選んだ器です。");
+    setResultSource("catalog");
     setView("result");
   }
 
@@ -114,8 +125,9 @@ export function UtsuwaExperience() {
       <ResultScreen
         irritationText={irritationText}
         vessel={selectedVessel}
-        onBack={() => setView("title")}
+        onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")}
         onBattle={() => setView("battle")}
+        showOwner={resultSource === "input"}
       />
     );
   }
@@ -124,7 +136,9 @@ export function UtsuwaExperience() {
     return (
       <CatalogScreen
         onBack={() => setView("title")}
+        onPageChange={setCatalogPageIndex}
         onOpenVessel={handleOpenVessel}
+        pageIndex={catalogPageIndex}
         unlockedVesselIds={unlockedVesselIds}
         vessels={vessels}
       />
