@@ -1,4 +1,6 @@
 import type { Vessel } from "@/types/vessel";
+import screen from "@/components/Screen.module.css";
+import styles from "@/components/ResultScreen.module.css";
 
 type ResultScreenProps = {
   irritationText: string;
@@ -18,10 +20,13 @@ export function ResultScreen({
   const ownerText = irritationText || "〜〜";
 
   return (
-    <main className="titlePage resultPage">
-      <section className="titlePanel resultPanel" aria-labelledby="result-title">
-        {showOwner ? <p className="resultOwner">{ownerText}の器は</p> : null}
-        <div className="vesselResultImage">
+    <main className={`${screen.titlePage} ${styles.resultPage}`}>
+      <section
+        className={`${screen.titlePanel} ${styles.resultPanel}`}
+        aria-labelledby="result-title"
+      >
+        {showOwner ? <p className={styles.resultOwner}>{ownerText}の器は</p> : null}
+        <div className={styles.vesselResultImage}>
           {vessel.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img alt={vessel.name} src={vessel.imageUrl} />
@@ -30,17 +35,17 @@ export function ResultScreen({
           )}
         </div>
 
-        <h1 className="resultTitle" id="result-title">
+        <h1 className={styles.resultTitle} id="result-title">
           {vessel.name}
         </h1>
 
-        <p className="resultFeature">{vessel.feature}</p>
+        <p className={styles.resultFeature}>{vessel.feature}</p>
 
-        <div className="resultActions">
-          <button className="primaryAction" onClick={onBattle} type="button">
+        <div className={styles.resultActions}>
+          <button className={screen.primaryAction} onClick={onBattle} type="button">
             器でバトルする
           </button>
-          <button className="secondaryAction" onClick={onBack} type="button">
+          <button className={screen.secondaryAction} onClick={onBack} type="button">
             戻る
           </button>
         </div>
