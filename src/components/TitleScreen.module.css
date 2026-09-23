@@ -1,0 +1,139 @@
+.brand {
+  align-self: start;
+  text-align: center;
+}
+
+.brand h1 {
+  margin: 0;
+  color: #ffe2a5;
+  font-size: clamp(3.4rem, 10vw, 4.8rem);
+  font-weight: 600;
+  line-height: 0.92;
+  text-shadow: 0 0 14px rgba(255, 190, 93, 0.2);
+}
+
+.intro {
+  align-self: center;
+  margin: 18px 0 22px;
+  color: rgba(250, 229, 195, 0.9);
+  font-size: clamp(0.82rem, 1.8vw, 0.92rem);
+  line-height: 1.9;
+}
+
+.titleForm {
+  align-self: end;
+  display: grid;
+  gap: 14px;
+}
+
+.titleForm label {
+  color: #f7e3bd;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.titleForm textarea {
+  width: 100%;
+  min-height: 76px;
+  resize: none;
+  border: 1px solid rgba(210, 146, 45, 0.92);
+  border-radius: 6px;
+  padding: 13px 15px;
+  color: #f8ead1;
+  background: rgba(26, 16, 10, 0.82);
+  outline: none;
+  line-height: 1.6;
+}
+
+.titleForm textarea::placeholder {
+  color: rgba(246, 218, 174, 0.56);
+}
+
+.titleForm textarea:focus {
+  border-color: #ffd37e;
+  box-shadow: 0 0 0 3px rgba(210, 146, 45, 0.18);
+}
+
+.titleForm button {
+  justify-self: center;
+  width: min(100%, 250px);
+  min-height: 54px;
+  margin-top: 22px;
+  border: 1px solid rgba(255, 198, 93, 0.9);
+  border-radius: 16px;
+  color: #fff7e9;
+  background: #d07a24;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 14px 28px rgba(62, 28, 6, 0.28);
+}
+
+.titleForm button:hover,
+.titleNav button:hover {
+  filter: brightness(1.08);
+}
+
+.titleForm button:active,
+.titleNav button:active {
+  transform: translateY(1px);
+}
+
+.titleNav {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 3vw, 32px);
+  width: min(100%, 500px);
+  margin-top: clamp(20px, 4.4svh, 42px);
+  transform: translateY(-25px);
+}
+
+.titleNav button {
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid rgba(204, 147, 55, 0.92);
+  border-radius: 12px;
+  color: #fff7e9;
+  background: rgba(18, 11, 7, 0.58);
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: clamp(0.92rem, 2.2vw, 1.1rem);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 640px) {
+  .intro {
+    margin: 28px 0 24px;
+  }
+
+  .titleForm button {
+    margin-top: 12px;
+  }
+
+  .titleNav {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: min(100%, 380px);
+    margin-top: 18px;
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-height: 720px) and (min-width: 641px) {
+  .intro {
+    margin: 12px 0 16px;
+  }
+
+  .titleForm button {
+    margin-top: 12px;
+  }
+
+  .titleNav {
+    margin-top: 24px;
+    transform: translateY(-18px);
+  }
+}

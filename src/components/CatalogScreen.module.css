@@ -1,0 +1,177 @@
+.catalogPage {
+  grid-template-rows: 1fr;
+  padding: clamp(24px, 6svh, 64px) 24px clamp(32px, 7svh, 72px);
+}
+
+.catalogPanel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  width: min(100%, 1120px);
+}
+
+.catalogTitle {
+  margin: 0 0 -16px;
+  color: #ffe2a5;
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 190, 93, 0.22);
+}
+
+.catalogBook {
+  display: grid;
+  align-items: center;
+  width: min(100%, 1120px);
+  aspect-ratio: 16 / 9;
+  padding: clamp(56px, 6vw, 78px) clamp(132px, 13.5vw, 178px);
+  background: url("/images/catalog-book.png") center / contain no-repeat;
+}
+
+.catalogSpread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(12px, 2.6vw, 34px);
+  width: 100%;
+}
+
+.catalogPageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.2vw, 18px);
+  width: 100%;
+}
+
+.catalogCard {
+  min-width: 0;
+  max-width: 188px;
+  overflow: hidden;
+  border: 1px solid rgba(121, 82, 31, 0.9);
+  border-radius: 8px;
+  color: inherit;
+  background: rgba(16, 10, 8, 0.86);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  justify-self: center;
+}
+
+.catalogCard:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.catalogCard img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.08 / 1;
+  object-fit: cover;
+}
+
+.catalogCard span {
+  display: block;
+  overflow: hidden;
+  padding: 8px;
+  color: #f2d58f;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locked {
+  cursor: default;
+  filter: grayscale(1);
+}
+
+.locked img {
+  opacity: 0.22;
+}
+
+.locked span {
+  color: rgba(242, 213, 143, 0.42);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.empty {
+  visibility: hidden;
+}
+
+.catalogControls {
+  display: grid;
+  grid-template-columns: 54px auto 54px;
+  align-items: center;
+  width: min(100%, 1000px);
+  margin-top: -40px;
+}
+
+.catalogArrow {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(224, 173, 77, 0.96);
+  border-radius: 50%;
+  color: #ffe2a5;
+  background: rgba(24, 14, 7, 0.78);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.catalogArrow:first-child {
+  justify-self: start;
+}
+
+.catalogArrow:last-child {
+  justify-self: end;
+}
+
+.catalogArrow:disabled {
+  visibility: hidden;
+}
+
+.catalogPageNumber {
+  justify-self: center;
+  color: #e9c16e;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.catalogBack {
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .catalogBook {
+    width: min(100%, 640px);
+    min-height: 360px;
+    aspect-ratio: 16 / 9;
+    padding: 42px 68px;
+    background-size: contain;
+  }
+
+  .catalogSpread {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .catalogPageGrid {
+    gap: 8px;
+  }
+
+  .catalogCard span {
+    padding: 6px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 641px) {
+  .catalogPage {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+}

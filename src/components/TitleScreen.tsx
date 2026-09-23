@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import screen from "@/components/Screen.module.css";
+import styles from "@/components/TitleScreen.module.css";
 
 type TitleScreenProps = {
   onOpenBattle: () => void;
@@ -23,18 +25,18 @@ export function TitleScreen({
   }
 
   return (
-    <main className="titlePage">
-      <section className="titlePanel" aria-labelledby="title-heading">
-        <div className="brand">
+    <main className={screen.titlePage}>
+      <section className={screen.titlePanel} aria-labelledby="title-heading">
+        <div className={styles.brand}>
           <h1 id="title-heading">器</h1>
         </div>
 
-        <p className="intro">
+        <p className={styles.intro}>
           あなたがイラッとした人の行動を入力してください。
           AIがその行動から、その人にふさわしい器を選びます。
         </p>
 
-        <form className="titleForm" onSubmit={handleSubmit}>
+        <form className={styles.titleForm} onSubmit={handleSubmit}>
           <label htmlFor="irritation">どんな人にイラッとした？</label>
           <textarea
             id="irritation"
@@ -48,7 +50,7 @@ export function TitleScreen({
         </form>
       </section>
 
-      <nav className="titleNav" aria-label="メインメニュー">
+      <nav className={styles.titleNav} aria-label="メインメニュー">
         <button onClick={onOpenCatalog} type="button">
           図鑑
         </button>

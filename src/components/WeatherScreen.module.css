@@ -1,0 +1,75 @@
+.weatherPage {
+  grid-template-rows: 1fr;
+  padding: clamp(24px, 6svh, 64px) 24px clamp(32px, 7svh, 72px);
+}
+
+.weatherPanel {
+  justify-items: center;
+  min-height: clamp(500px, 68svh, 580px);
+  text-align: center;
+}
+
+.weatherTitle {
+  margin: 0 0 18px;
+  color: #ffe2a5;
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 190, 93, 0.22);
+}
+
+.weatherLead {
+  margin: 0 0 22px;
+  color: rgba(250, 229, 195, 0.92);
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+  line-height: 1.8;
+}
+
+.weatherStats {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 8px 0 22px;
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+.weatherStats div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(204, 147, 55, 0.42);
+}
+
+.weatherStats dt {
+  color: rgba(250, 229, 195, 0.84);
+}
+
+.weatherStats dd {
+  margin: 0;
+  color: #ffe2a5;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.weatherText {
+  margin: 18px 0 42px;
+  color: rgba(250, 229, 195, 0.82);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+@media (max-height: 720px) and (min-width: 641px) {
+  .weatherPage {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .weatherPanel {
+    min-height: 500px;
+    padding-top: 34px;
+  }
+}
