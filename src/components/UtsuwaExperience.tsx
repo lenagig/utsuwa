@@ -63,10 +63,19 @@ export function UtsuwaExperience() {
   const [catalogPageIndex, setCatalogPageIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
+  const [battleVesselId, setBattleVesselId] = useState<string | null>(null);
   const [unlockedVesselIds, setUnlockedVesselIds] =
     useState<string[]>(readUnlockedVesselIds);
   const [dailyGeneration, setDailyGeneration] =
     useState<DailyGeneration>(readDailyGeneration);
+  const unlockedVessels = vessels.filter((vessel) =>
+    unlockedVesselIds.includes(vessel.id)
+  );
+  const battleVessel =
+    unlockedVessels.find((vessel) => vessel.id === battleVesselId) ??
+    unlockedVessels.find((vessel) => vessel.id === selectedVessel?.id) ??
+    unlockedVessels[0] ??
+    null;
 
   function unlockVessel(vesselId: string) {
     setUnlockedVesselIds((currentIds) => {
@@ -126,7 +135,10 @@ export function UtsuwaExperience() {
         irritationText={irritationText}
         vessel={selectedVessel}
         onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")}
-        onBattle={() => setView("battle")}
+        onBattle={() => {
+          setBattleVesselId(selectedVessel.id);
+          setView("battle");
+        }}
         showOwner={resultSource === "input"}
       />
     );
@@ -149,7 +161,9 @@ export function UtsuwaExperience() {
     return (
       <BattleScreen
         onBack={() => setView("title")}
-        selectedVessel={selectedVessel}
+        onSelectVessel={setBattleVesselId}
+        selectedVessel={battleVessel}
+        vessels={unlockedVessels}
       />
     );
   }
