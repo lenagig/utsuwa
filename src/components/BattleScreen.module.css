@@ -3,16 +3,22 @@
   padding: clamp(24px, 6svh, 64px) 24px clamp(32px, 7svh, 72px);
 }
 
+.battlePage.battlePage::before {
+  background-image: url("/images/battle-arena.png");
+}
+
 .battlePanel {
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: clamp(500px, 68svh, 580px);
   text-align: center;
 }
 
 .battleTitle {
-  margin: 0 0 18px;
+  margin: 0 0 28px;
   color: #ffe2a5;
-  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-size: clamp(3rem, 5.5vw, 3.4rem);
   font-weight: 500;
   line-height: 1;
   text-align: center;
@@ -20,32 +26,103 @@
 }
 
 .battleLead {
-  margin: 0 0 22px;
+  align-self: stretch;
+  margin: 0 0 12px;
   color: rgba(250, 229, 195, 0.92);
-  font-size: clamp(0.9rem, 1.8vw, 1rem);
+  font-size: 0.82rem;
   line-height: 1.8;
+  text-align: left;
 }
 
-.battleArena {
-  display: grid;
-  place-items: center;
-  width: min(100%, 310px);
-  min-height: 210px;
+.vesselSelectWrap {
+  position: relative;
+  width: 100%;
+}
+
+.vesselSelect {
+  width: 100%;
+  min-height: 40px;
   border: 1px solid rgba(204, 147, 55, 0.72);
-  border-radius: 12px;
-  color: #ffe2a5;
-  background:
-    linear-gradient(rgba(19, 8, 5, 0.36), rgba(19, 8, 5, 0.64)),
-    url("/images/battle-arena.png") center / cover;
-  font-size: 1.4rem;
-  text-shadow: 0 3px 12px #000;
+  border-radius: 15px;
+  padding: 0 42px 0 15px;
+  appearance: none;
+  color: #f6ead4;
+  background: rgba(18, 11, 7, 0.76);
+  font-family:
+    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  font-size: 0.82rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }
 
-.battleText {
-  margin: 18px 0 42px;
+.vesselSelect:focus-visible {
+  outline: 2px solid #ffd37e;
+  outline-offset: 2px;
+}
+
+.vesselSelect:disabled {
+  color: rgba(250, 229, 195, 0.62);
+  cursor: not-allowed;
+}
+
+.vesselSelect option {
+  color: #f6ead4;
+  background: #1a100a;
+}
+
+.selectArrow {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  color: #f6ead4;
+  font-size: 1.35rem;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-55%);
+}
+
+.battleMessage {
+  align-self: stretch;
+  margin: 12px 0 0;
   color: rgba(250, 229, 195, 0.82);
-  font-size: 0.9rem;
-  line-height: 1.8;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.battleActions {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 48px;
+}
+
+.fightAction:disabled {
+  filter: grayscale(0.5);
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .battlePage {
+    padding: 24px 16px 34px;
+  }
+
+  .battlePanel {
+    width: min(100%, 380px);
+    min-height: 500px;
+  }
+
+  .battleTitle {
+    margin-bottom: 24px;
+  }
+
+  .battleActions {
+    padding-top: 36px;
+  }
 }
 
 @media (max-height: 720px) and (min-width: 641px) {
@@ -57,5 +134,10 @@
   .battlePanel {
     min-height: 500px;
     padding-top: 34px;
+    padding-bottom: 30px;
+  }
+
+  .battleActions {
+    padding-top: 32px;
   }
 }
