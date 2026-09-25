@@ -60,7 +60,7 @@ function readDailyGeneration() {
 export function UtsuwaExperience() {
   const [view, setView] = useState<View>("title");
   const [resultSource, setResultSource] = useState<ResultSource>("input");
-  const [catalogPageIndex, setCatalogPageIndex] = useState(0);
+  const [catalogAnchorIndex, setCatalogAnchorIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [battleVesselId, setBattleVesselId] = useState<string | null>(null);
@@ -120,7 +120,7 @@ export function UtsuwaExperience() {
     const vesselIndex = vessels.findIndex((catalogVessel) => catalogVessel.id === vessel.id);
 
     if (vesselIndex >= 0) {
-      setCatalogPageIndex(Math.floor(vesselIndex / 8));
+      setCatalogAnchorIndex(vesselIndex);
     }
 
     setSelectedVessel(vessel);
@@ -148,9 +148,9 @@ export function UtsuwaExperience() {
     return (
       <CatalogScreen
         onBack={() => setView("title")}
-        onPageChange={setCatalogPageIndex}
+        onPageChange={setCatalogAnchorIndex}
         onOpenVessel={handleOpenVessel}
-        pageIndex={catalogPageIndex}
+        anchorIndex={catalogAnchorIndex}
         unlockedVesselIds={unlockedVesselIds}
         vessels={vessels}
       />

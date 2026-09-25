@@ -62,6 +62,42 @@
   line-height: 1.8;
 }
 
+@media (max-width: 640px) {
+  .weatherPage {
+    padding: 24px 16px 34px;
+  }
+
+  .weatherPanel {
+    min-height: auto;
+    padding: 20px 22px;
+  }
+
+  .weatherTitle {
+    margin-bottom: 14px;
+  }
+
+  .weatherLead {
+    margin-bottom: 16px;
+  }
+
+  .weatherStats {
+    gap: 6px;
+    margin: 6px 0 16px;
+  }
+
+  .weatherStats div {
+    padding: 12px 0;
+  }
+
+  .weatherText {
+    margin: 14px 0 30px;
+  }
+
+  .weatherPanel > button {
+    align-self: center;
+  }
+}
+
 @media (max-height: 720px) and (min-width: 641px) {
   .weatherPage {
     padding-top: 28px;
