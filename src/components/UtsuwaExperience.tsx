@@ -35,11 +35,22 @@ function readDailyGeneration() {
 export function UtsuwaExperience() {
   const [view, setView] = useState<View>("title");
   const [resultSource, setResultSource] = useState<ResultSource>("input");
-  const [catalogPageIndex, setCatalogPageIndex] = useState(0);
+  const [catalogAnchorIndex, setCatalogAnchorIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
-  const [unlockedVesselIds, setUnlockedVesselIds] = useState<string[]>(readUnlockedVesselIds);
-  const [dailyGeneration, setDailyGeneration] = useState<DailyGeneration>(readDailyGeneration);
+  const [battleVesselId, setBattleVesselId] = useState<string | null>(null);
+  const [unlockedVesselIds, setUnlockedVesselIds] =
+    useState<string[]>(readUnlockedVesselIds);
+  const [dailyGeneration, setDailyGeneration] =
+    useState<DailyGeneration>(readDailyGeneration);
+  const unlockedVessels = vessels.filter((vessel) =>
+    unlockedVesselIds.includes(vessel.id)
+  );
+  const battleVessel =
+    unlockedVessels.find((vessel) => vessel.id === battleVesselId) ??
+    unlockedVessels.find((vessel) => vessel.id === selectedVessel?.id) ??
+    unlockedVessels[0] ??
+    null;
 
   function unlockVessel(vesselId: string) {
     setUnlockedVesselIds((current) => {
@@ -86,17 +97,68 @@ export function UtsuwaExperience() {
   }
 
   function handleOpenVessel(vessel: Vessel) {
-    const index = vessels.findIndex((item) => item.id === vessel.id);
-    if (index >= 0) setCatalogPageIndex(Math.floor(index / 8));
+    const vesselIndex = vessels.findIndex((item) => item.id === vessel.id);
+    if (vesselIndex >= 0) setCatalogAnchorIndex(vesselIndex);
     setSelectedVessel(vessel);
     setIrritationText("図鑑から選んだ器です。");
     setResultSource("catalog");
     setView("result");
   }
 
-  if (view === "result" && selectedVessel) return <ResultScreen irritationText={irritationText} vessel={selectedVessel} onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")} onBattle={() => setView("battle")} showOwner={resultSource === "input"} />;
-  if (view === "catalog") return <CatalogScreen onBack={() => setView("title")} onPageChange={setCatalogPageIndex} onOpenVessel={handleOpenVessel} pageIndex={catalogPageIndex} unlockedVesselIds={unlockedVesselIds} vessels={vessels} />;
-  if (view === "battle") return <BattleScreen onBack={() => setView("title")} selectedVessel={selectedVessel} />;
-  if (view === "weather") return <WeatherScreen dailyGeneration={dailyGeneration} onBack={() => setView("title")} />;
-  return <TitleScreen onOpenBattle={() => setView("battle")} onOpenCatalog={() => setView("catalog")} onOpenWeather={() => setView("weather")} onSelectVessel={handleSelectVessel} />;
+  if (view === "result" && selectedVessel) {
+    return (
+      <ResultScreen
+        irritationText={irritationText}
+        vessel={selectedVessel}
+        onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")}
+        onBattle={() => {
+          setBattleVesselId(selectedVessel.id);
+          setView("battle");
+        }}
+        showOwner={resultSource === "input"}
+      />
+    );
+  }
+
+  if (view === "catalog") {
+    return (
+      <CatalogScreen
+        onBack={() => setView("title")}
+        onPageChange={setCatalogAnchorIndex}
+        onOpenVessel={handleOpenVessel}
+        anchorIndex={catalogAnchorIndex}
+        unlockedVesselIds={unlockedVesselIds}
+        vessels={vessels}
+      />
+    );
+  }
+
+  if (view === "battle") {
+    return (
+      <BattleScreen
+        onBack={() => setView("title")}
+        onSelectVessel={setBattleVesselId}
+        selectedVessel={battleVessel}
+        vessels={unlockedVessels}
+      />
+    );
+  }
+
+  if (view === "weather") {
+    return (
+      <WeatherScreen
+        dailyGeneration={dailyGeneration}
+        onBack={() => setView("title")}
+      />
+    );
+  }
+
+  return (
+    <TitleScreen
+      onOpenBattle={() => setView("battle")}
+      onOpenCatalog={() => setView("catalog")}
+      onOpenWeather={() => setView("weather")}
+      onSelectVessel={handleSelectVessel}
+    />
+  );
 }
