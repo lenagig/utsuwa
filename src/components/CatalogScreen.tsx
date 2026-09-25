@@ -1,16 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Vessel } from "@/types/vessel";
 import screen from "@/components/Screen.module.css";
 import styles from "@/components/CatalogScreen.module.css";
 
 type CatalogScreenProps = {
   onBack: () => void;
-  onPageChange: (pageIndex: number) => void;
+  onPageChange: (anchorIndex: number) => void;
   onOpenVessel: (vessel: Vessel) => void;
-  pageIndex: number;
+  anchorIndex: number;
   unlockedVesselIds: string[];
   vessels: Vessel[];
 };
@@ -19,15 +19,27 @@ export function CatalogScreen({
   onBack,
   onPageChange,
   onOpenVessel,
-  pageIndex,
+  anchorIndex,
   unlockedVesselIds,
   vessels
 }: CatalogScreenProps) {
-  const pageSize = 8;
-  const totalPages = Math.ceil(vessels.length / pageSize);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    const updateLayout = () => setIsMobile(mediaQuery.matches);
+
+    updateLayout();
+    mediaQuery.addEventListener("change", updateLayout);
+    return () => mediaQuery.removeEventListener("change", updateLayout);
+  }, []);
+
+  const pageSize = isMobile ? 4 : 8;
+  const totalPages = Math.max(1, Math.ceil(vessels.length / pageSize));
+  const pageIndex = Math.min(Math.floor(anchorIndex / pageSize), totalPages - 1);
   const visibleVessels = useMemo(
     () => vessels.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize),
-    [pageIndex, vessels]
+    [pageIndex, pageSize, vessels]
   );
   const pageSlots = Array.from({ length: pageSize }, (_, index) => visibleVessels[index]);
   const canGoPrevious = pageIndex > 0;
@@ -71,7 +83,7 @@ export function CatalogScreen({
             aria-label="前のページ"
             className={styles.catalogArrow}
             disabled={!canGoPrevious}
-            onClick={() => onPageChange(pageIndex - 1)}
+            onClick={() => onPageChange((pageIndex - 1) * pageSize)}
             type="button"
           >
             ‹
@@ -83,7 +95,7 @@ export function CatalogScreen({
             aria-label="次のページ"
             className={styles.catalogArrow}
             disabled={!canGoNext}
-            onClick={() => onPageChange(pageIndex + 1)}
+            onClick={() => onPageChange((pageIndex + 1) * pageSize)}
             type="button"
           >
             ›

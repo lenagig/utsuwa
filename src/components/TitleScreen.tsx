@@ -25,7 +25,7 @@ export function TitleScreen({
   }
 
   return (
-    <main className={screen.titlePage}>
+    <main className={`${screen.titlePage} ${styles.titleScreen}`}>
       <section className={screen.titlePanel} aria-labelledby="title-heading">
         <div className={styles.brand}>
           <h1 id="title-heading">器</h1>
