@@ -11,50 +11,25 @@ import type { Vessel } from "@/types/vessel";
 
 type View = "title" | "result" | "catalog" | "battle" | "weather";
 type ResultSource = "input" | "catalog";
-
-type DailyGeneration = {
-  count: number;
-  date: string;
-};
+type DailyGeneration = { count: number; date: string };
 
 const unlockedStorageKey = "utsuwa-unlocked-vessels";
 const dailyStorageKey = "utsuwa-daily-generation";
-
-function getTodayKey() {
-  return new Date().toLocaleDateString("ja-JP");
-}
-
-function createDailyGeneration(): DailyGeneration {
-  return {
-    count: 0,
-    date: getTodayKey()
-  };
-}
+const getTodayKey = () => new Date().toLocaleDateString("ja-JP");
+const createDailyGeneration = (): DailyGeneration => ({ count: 0, date: getTodayKey() });
 
 function readUnlockedVesselIds() {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  const storedUnlocked = window.localStorage.getItem(unlockedStorageKey);
-  return storedUnlocked ? (JSON.parse(storedUnlocked) as string[]) : [];
+  if (typeof window === "undefined") return [];
+  const stored = window.localStorage.getItem(unlockedStorageKey);
+  return stored ? (JSON.parse(stored) as string[]) : [];
 }
 
 function readDailyGeneration() {
-  if (typeof window === "undefined") {
-    return createDailyGeneration();
-  }
-
-  const storedDaily = window.localStorage.getItem(dailyStorageKey);
-
-  if (!storedDaily) {
-    return createDailyGeneration();
-  }
-
-  const parsedDaily = JSON.parse(storedDaily) as DailyGeneration;
-  return parsedDaily.date === getTodayKey()
-    ? parsedDaily
-    : createDailyGeneration();
+  if (typeof window === "undefined") return createDailyGeneration();
+  const stored = window.localStorage.getItem(dailyStorageKey);
+  if (!stored) return createDailyGeneration();
+  const daily = JSON.parse(stored) as DailyGeneration;
+  return daily.date === getTodayKey() ? daily : createDailyGeneration();
 }
 
 export function UtsuwaExperience() {
@@ -63,42 +38,45 @@ export function UtsuwaExperience() {
   const [catalogPageIndex, setCatalogPageIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
-  const [unlockedVesselIds, setUnlockedVesselIds] =
-    useState<string[]>(readUnlockedVesselIds);
-  const [dailyGeneration, setDailyGeneration] =
-    useState<DailyGeneration>(readDailyGeneration);
+  const [unlockedVesselIds, setUnlockedVesselIds] = useState<string[]>(readUnlockedVesselIds);
+  const [dailyGeneration, setDailyGeneration] = useState<DailyGeneration>(readDailyGeneration);
 
   function unlockVessel(vesselId: string) {
-    setUnlockedVesselIds((currentIds) => {
-      if (currentIds.includes(vesselId)) {
-        return currentIds;
-      }
-
-      const nextIds = [...currentIds, vesselId];
-      window.localStorage.setItem(unlockedStorageKey, JSON.stringify(nextIds));
-      return nextIds;
+    setUnlockedVesselIds((current) => {
+      if (current.includes(vesselId)) return current;
+      const next = [...current, vesselId];
+      window.localStorage.setItem(unlockedStorageKey, JSON.stringify(next));
+      return next;
     });
   }
 
   function countDailyGeneration() {
-    setDailyGeneration((currentDaily) => {
-      const baseDaily =
-        currentDaily.date === getTodayKey()
-          ? currentDaily
-          : createDailyGeneration();
-      const nextDaily = {
-        ...baseDaily,
-        count: baseDaily.count + 1
-      };
-
-      window.localStorage.setItem(dailyStorageKey, JSON.stringify(nextDaily));
-      return nextDaily;
+    setDailyGeneration((current) => {
+      const base = current.date === getTodayKey() ? current : createDailyGeneration();
+      const next = { ...base, count: base.count + 1 };
+      window.localStorage.setItem(dailyStorageKey, JSON.stringify(next));
+      return next;
     });
   }
 
-  function handleSelectVessel(inputText: string) {
-    const nextVessel = selectVesselForInput(inputText);
+  async function chooseWithGemini(inputText: string) {
+    const fallback = selectVesselForInput(inputText);
+    try {
+      const response = await fetch("/api/select-vessel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inputText })
+      });
+      if (!response.ok) return fallback;
+      const result = (await response.json()) as { vesselId?: string };
+      return vessels.find((vessel) => vessel.id === result.vesselId) ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
 
+  async function handleSelectVessel(inputText: string) {
+    const nextVessel = await chooseWithGemini(inputText);
     setIrritationText(inputText.trim());
     setSelectedVessel(nextVessel);
     setResultSource("input");
@@ -108,67 +86,17 @@ export function UtsuwaExperience() {
   }
 
   function handleOpenVessel(vessel: Vessel) {
-    const vesselIndex = vessels.findIndex((catalogVessel) => catalogVessel.id === vessel.id);
-
-    if (vesselIndex >= 0) {
-      setCatalogPageIndex(Math.floor(vesselIndex / 8));
-    }
-
+    const index = vessels.findIndex((item) => item.id === vessel.id);
+    if (index >= 0) setCatalogPageIndex(Math.floor(index / 8));
     setSelectedVessel(vessel);
     setIrritationText("図鑑から選んだ器です。");
     setResultSource("catalog");
     setView("result");
   }
 
-  if (view === "result" && selectedVessel) {
-    return (
-      <ResultScreen
-        irritationText={irritationText}
-        vessel={selectedVessel}
-        onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")}
-        onBattle={() => setView("battle")}
-        showOwner={resultSource === "input"}
-      />
-    );
-  }
-
-  if (view === "catalog") {
-    return (
-      <CatalogScreen
-        onBack={() => setView("title")}
-        onPageChange={setCatalogPageIndex}
-        onOpenVessel={handleOpenVessel}
-        pageIndex={catalogPageIndex}
-        unlockedVesselIds={unlockedVesselIds}
-        vessels={vessels}
-      />
-    );
-  }
-
-  if (view === "battle") {
-    return (
-      <BattleScreen
-        onBack={() => setView("title")}
-        selectedVessel={selectedVessel}
-      />
-    );
-  }
-
-  if (view === "weather") {
-    return (
-      <WeatherScreen
-        dailyGeneration={dailyGeneration}
-        onBack={() => setView("title")}
-      />
-    );
-  }
-
-  return (
-    <TitleScreen
-      onOpenBattle={() => setView("battle")}
-      onOpenCatalog={() => setView("catalog")}
-      onOpenWeather={() => setView("weather")}
-      onSelectVessel={handleSelectVessel}
-    />
-  );
+  if (view === "result" && selectedVessel) return <ResultScreen irritationText={irritationText} vessel={selectedVessel} onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")} onBattle={() => setView("battle")} showOwner={resultSource === "input"} />;
+  if (view === "catalog") return <CatalogScreen onBack={() => setView("title")} onPageChange={setCatalogPageIndex} onOpenVessel={handleOpenVessel} pageIndex={catalogPageIndex} unlockedVesselIds={unlockedVesselIds} vessels={vessels} />;
+  if (view === "battle") return <BattleScreen onBack={() => setView("title")} selectedVessel={selectedVessel} />;
+  if (view === "weather") return <WeatherScreen dailyGeneration={dailyGeneration} onBack={() => setView("title")} />;
+  return <TitleScreen onOpenBattle={() => setView("battle")} onOpenCatalog={() => setView("catalog")} onOpenWeather={() => setView("weather")} onSelectVessel={handleSelectVessel} />;
 }

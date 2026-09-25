@@ -1,43 +1,30 @@
-# 器
+# 器（UTSUWA）
 
+人や行動の内容を入力すると、Geminiが図鑑内の器からひとつを選ぶアプリです。器は生成された時点で図鑑に解放されます。
 
 ## 必要なもの
 
-- Node.js
-- npm
+- Node.js 22以降
+- Gemini APIキー（任意。未設定時はローカルの簡易選択で動作します）
 
-動作確認済みの環境:
+## 起動
 
-```bash
-node --version
-npm --version
-```
-
-このプロジェクト作成時点では、Node.js `v22.18.0` / npm `10.9.3` で動作確認しています。
-
-## 初回セットアップ
-
-リポジトリを取得したあと、プロジェクト直下で依存関係をインストールします。
-
-```bash
+```powershell
 npm install
-```
-
-## 開発サーバーの起動
-
-```bash
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
-起動できたら、ブラウザで以下を開きます。
+ブラウザで `http://localhost:3000` を開きます。
 
-```text
-http://localhost:3000
+## Gemini APIキーの設定
+
+`.env.local` を開き、次の値だけを書き換えます。
+
+```env
+GEMINI_API_KEY=ここにGoogle_AI_StudioのAPIキー
 ```
 
-## 技術構成
+必要に応じて `GEMINI_MODEL` も変更できます。APIキーはNext.jsのサーバー側APIルートでのみ読み込み、ブラウザやGitには含まれません。
 
-- Next.js
-- TypeScript
-- React
-- CSS
+`.env.local` は `.gitignore` によりコミット対象外です。`.env.example` だけをGitへ含めてください。
