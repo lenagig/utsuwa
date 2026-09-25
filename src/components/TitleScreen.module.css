@@ -107,8 +107,8 @@
 
 @media (max-width: 640px) {
   .titleScreen {
-    grid-template-rows: auto auto;
-    align-content: center;
+    grid-template-rows: 1fr;
+    align-content: stretch;
   }
 
   .intro {
@@ -122,15 +122,15 @@
   .titleNav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 21px;
-    width: min(94%, 380px);
+    width: min(100%, 380px);
     margin-top: 32px;
     transform: none;
   }
 
   .titleNav button {
-    min-height: 38px;
+    min-height: 42px;
     padding: 0 2px;
-    font-size: 0.78rem;
+    font-size: 0.86rem;
   }
 }
 

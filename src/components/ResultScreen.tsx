@@ -21,35 +21,37 @@ export function ResultScreen({
 
   return (
     <main className={`${screen.titlePage} ${styles.resultPage}`}>
-      <section
-        className={`${screen.titlePanel} ${styles.resultPanel}`}
-        aria-labelledby="result-title"
-      >
-        {showOwner ? <p className={styles.resultOwner}>{ownerText}の器は</p> : null}
-        <div className={styles.vesselResultImage}>
-          {vessel.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt={vessel.name} src={vessel.imageUrl} />
-          ) : (
-            <span>画像</span>
-          )}
-        </div>
+      <div className={screen.screenContent}>
+        <section
+          className={`${screen.titlePanel} ${styles.resultPanel}`}
+          aria-labelledby="result-title"
+        >
+          {showOwner ? <p className={styles.resultOwner}>{ownerText}の器は</p> : null}
+          <div className={styles.vesselResultImage}>
+            {vessel.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt={vessel.name} src={vessel.imageUrl} />
+            ) : (
+              <span>画像</span>
+            )}
+          </div>
 
-        <h1 className={styles.resultTitle} id="result-title">
-          {vessel.name}
-        </h1>
+          <h1 className={styles.resultTitle} id="result-title">
+            {vessel.name}
+          </h1>
 
-        <p className={styles.resultFeature}>{vessel.feature}</p>
+          <p className={styles.resultFeature}>{vessel.feature}</p>
 
-        <div className={styles.resultActions}>
-          <button className={screen.primaryAction} onClick={onBattle} type="button">
-            器でバトルする
-          </button>
-          <button className={screen.secondaryAction} onClick={onBack} type="button">
-            戻る
-          </button>
-        </div>
-      </section>
+          <div className={styles.resultActions}>
+            <button className={screen.primaryAction} onClick={onBattle} type="button">
+              器でバトルする
+            </button>
+            <button className={screen.secondaryAction} onClick={onBack} type="button">
+              戻る
+            </button>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

@@ -47,69 +47,71 @@ export function CatalogScreen({
 
   return (
     <main className={`${screen.titlePage} ${styles.catalogPage}`}>
-      <section className={styles.catalogPanel} aria-labelledby="catalog-title">
-        <h1 className={styles.catalogTitle} id="catalog-title">
-          図鑑
-        </h1>
+      <div className={screen.screenContent}>
+        <section className={styles.catalogPanel} aria-labelledby="catalog-title">
+          <h1 className={styles.catalogTitle} id="catalog-title">
+            図鑑
+          </h1>
 
-        <div className={styles.catalogBook}>
-          <div className={styles.catalogSpread}>
-            <div className={styles.catalogPageGrid}>
-              {pageSlots.slice(0, 4).map((vessel, index) => (
-                <CatalogCard
-                  key={vessel?.id ?? `left-empty-${index}`}
-                  onOpenVessel={onOpenVessel}
-                  unlockedVesselIds={unlockedVesselIds}
-                  vessel={vessel}
-                />
-              ))}
-            </div>
+          <div className={styles.catalogBook}>
+            <div className={styles.catalogSpread}>
+              <div className={styles.catalogPageGrid}>
+                {pageSlots.slice(0, 4).map((vessel, index) => (
+                  <CatalogCard
+                    key={vessel?.id ?? `left-empty-${index}`}
+                    onOpenVessel={onOpenVessel}
+                    unlockedVesselIds={unlockedVesselIds}
+                    vessel={vessel}
+                  />
+                ))}
+              </div>
 
-            <div className={styles.catalogPageGrid}>
-              {pageSlots.slice(4, 8).map((vessel, index) => (
-                <CatalogCard
-                  key={vessel?.id ?? `right-empty-${index}`}
-                  onOpenVessel={onOpenVessel}
-                  unlockedVesselIds={unlockedVesselIds}
-                  vessel={vessel}
-                />
-              ))}
+              <div className={styles.catalogPageGrid}>
+                {pageSlots.slice(4, 8).map((vessel, index) => (
+                  <CatalogCard
+                    key={vessel?.id ?? `right-empty-${index}`}
+                    onOpenVessel={onOpenVessel}
+                    unlockedVesselIds={unlockedVesselIds}
+                    vessel={vessel}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.catalogControls}>
+          <div className={styles.catalogControls}>
+            <button
+              aria-label="前のページ"
+              className={styles.catalogArrow}
+              disabled={!canGoPrevious}
+              onClick={() => onPageChange((pageIndex - 1) * pageSize)}
+              type="button"
+            >
+              ‹
+            </button>
+            <span className={styles.catalogPageNumber}>
+              {pageIndex + 1} / {totalPages}
+            </span>
+            <button
+              aria-label="次のページ"
+              className={styles.catalogArrow}
+              disabled={!canGoNext}
+              onClick={() => onPageChange((pageIndex + 1) * pageSize)}
+              type="button"
+            >
+              ›
+            </button>
+          </div>
+
           <button
-            aria-label="前のページ"
-            className={styles.catalogArrow}
-            disabled={!canGoPrevious}
-            onClick={() => onPageChange((pageIndex - 1) * pageSize)}
+            className={`${screen.secondaryAction} ${styles.catalogBack}`}
+            onClick={onBack}
             type="button"
           >
-            ‹
+            戻る
           </button>
-          <span className={styles.catalogPageNumber}>
-            {pageIndex + 1} / {totalPages}
-          </span>
-          <button
-            aria-label="次のページ"
-            className={styles.catalogArrow}
-            disabled={!canGoNext}
-            onClick={() => onPageChange((pageIndex + 1) * pageSize)}
-            type="button"
-          >
-            ›
-          </button>
-        </div>
-
-        <button
-          className={`${screen.secondaryAction} ${styles.catalogBack}`}
-          onClick={onBack}
-          type="button"
-        >
-          戻る
-        </button>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
