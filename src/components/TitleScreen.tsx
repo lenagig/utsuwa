@@ -8,7 +8,7 @@ type TitleScreenProps = {
   onOpenBattle: () => void;
   onOpenCatalog: () => void;
   onOpenWeather: () => void;
-  onSelectVessel: (inputText: string) => void;
+  onSelectVessel: (inputText: string) => Promise<void>;
 };
 
 export function TitleScreen({
@@ -18,14 +18,25 @@ export function TitleScreen({
   onSelectVessel
 }: TitleScreenProps) {
   const [inputText, setInputText] = useState("");
+  const [isSelecting, setIsSelecting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSelectVessel(inputText);
+    if (isSelecting) return;
+
+    setIsSelecting(true);
+    try {
+      await onSelectVessel(inputText);
+    } finally {
+      setIsSelecting(false);
+    }
   }
 
   return (
-    <main className={`${screen.titlePage} ${styles.titleScreen}`}>
+    <main
+      aria-busy={isSelecting}
+      className={`${screen.titlePage} ${styles.titleScreen}`}
+    >
       <div className={`${screen.screenContent} ${screen.titleScreenContent}`}>
         <section className={screen.titlePanel} aria-labelledby="title-heading">
           <div className={styles.brand}>
@@ -47,7 +58,9 @@ export function TitleScreen({
               rows={3}
               value={inputText}
             />
-            <button type="submit">器を選んでもらう</button>
+            <button disabled={isSelecting} type="submit">
+              器を選んでもらう
+            </button>
           </form>
         </section>
 
@@ -63,6 +76,16 @@ export function TitleScreen({
           </button>
         </nav>
       </div>
+      {isSelecting && (
+        <div className={styles.loadingOverlay} role="status" aria-live="polite">
+          <span>器を選んでいます</span>
+          <span className={styles.loadingDots} aria-hidden="true">
+            <span>.</span>
+            <span>.</span>
+            <span>.</span>
+          </span>
+        </div>
+      )}
     </main>
   );
 }
