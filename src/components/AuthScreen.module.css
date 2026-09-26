@@ -1,0 +1,106 @@
+.authPage {
+  grid-template-rows: 1fr;
+  padding: 32px 20px;
+}
+
+.authPanel {
+  width: min(100%, 520px);
+  min-height: auto;
+  justify-self: center;
+  align-self: center;
+  padding: clamp(28px, 5vw, 52px);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #dba74d;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+}
+
+.authPanel h1 {
+  margin: 10px 0 8px;
+  color: #ffe2a5;
+  font-size: clamp(2.25rem, 5vw, 3.2rem);
+  font-weight: 500;
+}
+
+.lead {
+  margin: 0 0 24px;
+  color: rgba(250, 229, 195, 0.84);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(204, 147, 55, 0.6);
+  border-radius: 10px;
+}
+
+.switcher button {
+  min-height: 42px;
+  border: 0;
+  color: rgba(250, 229, 195, 0.8);
+  background: transparent;
+  font: inherit;
+}
+
+.switcher button.active {
+  color: #251309;
+  background: #e0a24b;
+  font-weight: 700;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+.form label {
+  margin-top: 6px;
+  color: #f7e3bd;
+  font-size: 0.88rem;
+}
+
+.form label span {
+  color: rgba(250, 229, 195, 0.54);
+  font-size: 0.76rem;
+}
+
+.form input {
+  min-height: 48px;
+  border: 1px solid rgba(210, 146, 45, 0.85);
+  border-radius: 7px;
+  padding: 0 13px;
+  color: #f8ead1;
+  background: rgba(26, 16, 10, 0.82);
+  font: inherit;
+  outline: none;
+}
+
+.form input:focus {
+  border-color: #ffd37e;
+  box-shadow: 0 0 0 3px rgba(210, 146, 45, 0.18);
+}
+
+.form button {
+  width: min(100%, 280px);
+  justify-self: center;
+  margin-top: 16px;
+}
+
+.message {
+  margin: 8px 0 0;
+  color: #ffd48d;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.authPanel > button:last-child {
+  justify-self: center;
+  margin-top: 16px;
+}

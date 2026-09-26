@@ -1,30 +1,36 @@
-# 器（UTSUWA）
+# 器 / UTSUWA
 
-人や行動の内容を入力すると、Geminiが図鑑内の器からひとつを選ぶアプリです。器は生成された時点で図鑑に解放されます。
+人物や行動の説明から、Geminiが図鑑の器をひとつ選ぶアプリです。メールアドレス・パスワードでログインすると、図鑑の解放状態と全国の本日生まれた器数を保存します。
 
-## 必要なもの
-
-- Node.js 22以降
-- Gemini APIキー（任意。未設定時はローカルの簡易選択で動作します）
-
-## 起動
+## 初回セットアップ
 
 ```powershell
 npm install
 Copy-Item .env.example .env.local
+```
+
+`.env.local` に Gemini と Supabase の値を設定します。`.env.local` はGitへ追加されません。
+
+### Supabase
+
+1. [Supabase](https://supabase.com/) でプロジェクトを作成します。
+2. SQL Editorで [`supabase/schema.sql`](./supabase/schema.sql) の内容を実行します。
+3. Project Settings → API から URL、anon key、service_role key を `.env.local` に設定します。
+4. Authentication → Providers → Email を有効にします。開発中は「Confirm email」を無効にすると、登録直後にログインできます。
+
+`SUPABASE_SERVICE_ROLE_KEY` はサーバー側専用です。ブラウザ側のコード・Git・スクリーンショットに出さないでください。
+
+## 起動
+
+```powershell
 npm run dev
 ```
 
-ブラウザで `http://localhost:3000` を開きます。
+`http://localhost:3000` を開きます。
 
-## Gemini APIキーの設定
+## 確認
 
-`.env.local` を開き、次の値だけを書き換えます。
-
-```env
-GEMINI_API_KEY=ここにGoogle_AI_StudioのAPIキー
+```powershell
+npm run lint
+npm run typecheck
 ```
-
-必要に応じて `GEMINI_MODEL` も変更できます。APIキーはNext.jsのサーバー側APIルートでのみ読み込み、ブラウザやGitには含まれません。
-
-`.env.local` は `.gitignore` によりコミット対象外です。`.env.example` だけをGitへ含めてください。

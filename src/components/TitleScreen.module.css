@@ -3,6 +3,28 @@
   text-align: center;
 }
 
+.accountAction {
+  position: absolute;
+  top: clamp(18px, 3vw, 32px);
+  right: clamp(18px, 3vw, 36px);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f7e3bd;
+  font-size: 0.8rem;
+}
+
+.accountAction button {
+  min-height: 34px;
+  border: 1px solid rgba(204, 147, 55, 0.92);
+  border-radius: 999px;
+  padding: 0 13px;
+  color: #fff7e9;
+  background: rgba(18, 11, 7, 0.72);
+  font: inherit;
+}
+
 .brand h1 {
   margin: 0;
   color: #ffe2a5;
@@ -161,6 +183,14 @@
 }
 
 @media (max-width: 640px) {
+  .accountAction {
+    top: 14px;
+    right: 14px;
+  }
+
+  .accountAction span {
+    display: none;
+  }
   .titleScreen {
     grid-template-rows: 1fr;
     align-content: stretch;
