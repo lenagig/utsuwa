@@ -1,99 +1,116 @@
 "use client";
 
-import { useState } from "react";
-import { selectVesselForInput, vessels } from "@/data/vessels";
+import { useCallback, useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { AuthScreen } from "@/components/AuthScreen";
 import { BattleScreen } from "@/components/BattleScreen";
 import { CatalogScreen } from "@/components/CatalogScreen";
 import { ResultScreen } from "@/components/ResultScreen";
 import { TitleScreen } from "@/components/TitleScreen";
 import { WeatherScreen } from "@/components/WeatherScreen";
+import { vessels } from "@/data/vessels";
+import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { Vessel } from "@/types/vessel";
 
-type View = "title" | "result" | "catalog" | "battle" | "weather";
+type View = "title" | "auth" | "result" | "catalog" | "battle" | "weather";
 type ResultSource = "input" | "catalog";
-type DailyGeneration = { count: number; date: string };
 
-const unlockedStorageKey = "utsuwa-unlocked-vessels";
-const dailyStorageKey = "utsuwa-daily-generation";
-const getTodayKey = () => new Date().toLocaleDateString("ja-JP");
-const createDailyGeneration = (): DailyGeneration => ({ count: 0, date: getTodayKey() });
-
-function readUnlockedVesselIds() {
-  if (typeof window === "undefined") return [];
-  const stored = window.localStorage.getItem(unlockedStorageKey);
-  return stored ? (JSON.parse(stored) as string[]) : [];
-}
-
-function readDailyGeneration() {
-  if (typeof window === "undefined") return createDailyGeneration();
-  const stored = window.localStorage.getItem(dailyStorageKey);
-  if (!stored) return createDailyGeneration();
-  const daily = JSON.parse(stored) as DailyGeneration;
-  return daily.date === getTodayKey() ? daily : createDailyGeneration();
-}
+type AccountResponse = {
+  profile: { username: string; location: string | null } | null;
+  unlockedVesselIds: string[];
+  nationalTodayCount: number;
+};
 
 export function UtsuwaExperience() {
   const [view, setView] = useState<View>("title");
+  const [session, setSession] = useState<Session | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [resultSource, setResultSource] = useState<ResultSource>("input");
   const [catalogAnchorIndex, setCatalogAnchorIndex] = useState(0);
   const [irritationText, setIrritationText] = useState("");
   const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
   const [battleVesselId, setBattleVesselId] = useState<string | null>(null);
-  const [unlockedVesselIds, setUnlockedVesselIds] =
-    useState<string[]>(readUnlockedVesselIds);
-  const [dailyGeneration, setDailyGeneration] =
-    useState<DailyGeneration>(readDailyGeneration);
-  const unlockedVessels = vessels.filter((vessel) =>
-    unlockedVesselIds.includes(vessel.id)
-  );
+  const [unlockedVesselIds, setUnlockedVesselIds] = useState<string[]>([]);
+  const [nationalTodayCount, setNationalTodayCount] = useState(0);
+
+  const unlockedVessels = vessels.filter((vessel) => unlockedVesselIds.includes(vessel.id));
   const battleVessel =
     unlockedVessels.find((vessel) => vessel.id === battleVesselId) ??
     unlockedVessels.find((vessel) => vessel.id === selectedVessel?.id) ??
     unlockedVessels[0] ??
     null;
 
-  function unlockVessel(vesselId: string) {
-    setUnlockedVesselIds((current) => {
-      if (current.includes(vesselId)) return current;
-      const next = [...current, vesselId];
-      window.localStorage.setItem(unlockedStorageKey, JSON.stringify(next));
-      return next;
-    });
-  }
+  const refreshAccount = useCallback(async (nextSession: Session | null) => {
+    if (!nextSession) {
+      setUsername(null);
+      setUnlockedVesselIds([]);
+      setNationalTodayCount(0);
+      return;
+    }
 
-  function countDailyGeneration() {
-    setDailyGeneration((current) => {
-      const base = current.date === getTodayKey() ? current : createDailyGeneration();
-      const next = { ...base, count: base.count + 1 };
-      window.localStorage.setItem(dailyStorageKey, JSON.stringify(next));
-      return next;
+    const response = await fetch("/api/account", {
+      headers: { Authorization: `Bearer ${nextSession.access_token}` },
     });
-  }
+    if (!response.ok) return;
+    const data = (await response.json()) as AccountResponse;
+    setUsername(data.profile?.username ?? nextSession.user.user_metadata.username ?? null);
+    setUnlockedVesselIds(data.unlockedVesselIds);
+    setNationalTodayCount(data.nationalTodayCount);
+  }, []);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return;
+
+    void supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      void refreshAccount(data.session);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      void refreshAccount(nextSession);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, [refreshAccount]);
 
   async function chooseWithGemini(inputText: string) {
-    const fallback = selectVesselForInput(inputText);
-    try {
-      const response = await fetch("/api/select-vessel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inputText })
-      });
-      if (!response.ok) return fallback;
-      const result = (await response.json()) as { vesselId?: string };
-      return vessels.find((vessel) => vessel.id === result.vesselId) ?? fallback;
-    } catch {
-      return fallback;
-    }
+    if (!session) throw new Error("ログインが必要です。");
+    const response = await fetch("/api/select-vessel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ inputText }),
+    });
+    const result = (await response.json()) as {
+      error?: string;
+      nationalTodayCount?: number;
+      vesselId?: string;
+    };
+    if (!response.ok || !result.vesselId) throw new Error(result.error ?? "器を選べませんでした。");
+    const vessel = vessels.find((candidate) => candidate.id === result.vesselId);
+    if (!vessel) throw new Error("存在しない器が選ばれました。");
+    return { vessel, nationalTodayCount: result.nationalTodayCount ?? nationalTodayCount };
   }
 
   async function handleSelectVessel(inputText: string) {
-    const nextVessel = await chooseWithGemini(inputText);
-    setIrritationText(inputText.trim());
-    setSelectedVessel(nextVessel);
-    setResultSource("input");
-    unlockVessel(nextVessel.id);
-    countDailyGeneration();
-    setView("result");
+    if (!session) {
+      setView("auth");
+      return;
+    }
+    try {
+      const result = await chooseWithGemini(inputText);
+      setIrritationText(inputText.trim());
+      setSelectedVessel(result.vessel);
+      setResultSource("input");
+      setUnlockedVesselIds((current) => [...new Set([...current, result.vessel.id])]);
+      setNationalTodayCount(result.nationalTodayCount);
+      setView("result");
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "器を選べませんでした。");
+    }
   }
 
   function handleOpenVessel(vessel: Vessel) {
@@ -105,60 +122,33 @@ export function UtsuwaExperience() {
     setView("result");
   }
 
+  async function handleSignOut() {
+    await getSupabaseBrowserClient()?.auth.signOut();
+  }
+
+  if (view === "auth") {
+    return <AuthScreen onAuthenticated={async () => {
+      const nextSession = (await getSupabaseBrowserClient()?.auth.getSession())?.data.session ?? null;
+      setSession(nextSession);
+      await refreshAccount(nextSession);
+    }} onBack={() => setView("title")} />;
+  }
+
   if (view === "result" && selectedVessel) {
-    return (
-      <ResultScreen
-        irritationText={irritationText}
-        vessel={selectedVessel}
-        onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")}
-        onBattle={() => {
-          setBattleVesselId(selectedVessel.id);
-          setView("battle");
-        }}
-        showOwner={resultSource === "input"}
-      />
-    );
+    return <ResultScreen irritationText={irritationText} vessel={selectedVessel} onBack={() => setView(resultSource === "catalog" ? "catalog" : "title")} onBattle={() => { setBattleVesselId(selectedVessel.id); setView("battle"); }} showOwner={resultSource === "input"} />;
   }
 
   if (view === "catalog") {
-    return (
-      <CatalogScreen
-        onBack={() => setView("title")}
-        onPageChange={setCatalogAnchorIndex}
-        onOpenVessel={handleOpenVessel}
-        anchorIndex={catalogAnchorIndex}
-        unlockedVesselIds={unlockedVesselIds}
-        vessels={vessels}
-      />
-    );
+    return <CatalogScreen onBack={() => setView("title")} onPageChange={setCatalogAnchorIndex} onOpenVessel={handleOpenVessel} anchorIndex={catalogAnchorIndex} unlockedVesselIds={unlockedVesselIds} vessels={vessels} />;
   }
 
   if (view === "battle") {
-    return (
-      <BattleScreen
-        onBack={() => setView("title")}
-        onSelectVessel={setBattleVesselId}
-        selectedVessel={battleVessel}
-        vessels={unlockedVessels}
-      />
-    );
+    return <BattleScreen onBack={() => setView("title")} onSelectVessel={setBattleVesselId} selectedVessel={battleVessel} vessels={unlockedVessels} />;
   }
 
   if (view === "weather") {
-    return (
-      <WeatherScreen
-        dailyGeneration={dailyGeneration}
-        onBack={() => setView("title")}
-      />
-    );
+    return <WeatherScreen nationalTodayCount={nationalTodayCount} onBack={() => setView("title")} />;
   }
 
-  return (
-    <TitleScreen
-      onOpenBattle={() => setView("battle")}
-      onOpenCatalog={() => setView("catalog")}
-      onOpenWeather={() => setView("weather")}
-      onSelectVessel={handleSelectVessel}
-    />
-  );
+  return <TitleScreen onOpenAuth={() => setView("auth")} onOpenBattle={() => setView("battle")} onOpenCatalog={() => setView("catalog")} onOpenWeather={() => setView("weather")} onSelectVessel={handleSelectVessel} onSignOut={handleSignOut} username={username} />;
 }
