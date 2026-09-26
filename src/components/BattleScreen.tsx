@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { BattleArena3D, type FlyingVessel } from "@/components/BattleArena3D";
 import screen from "@/components/Screen.module.css";
 import styles from "@/components/BattleScreen.module.css";
@@ -9,6 +15,7 @@ import type { Vessel, VesselAbility } from "@/types/vessel";
 
 type Side = "player" | "rival";
 type Mode = "ready" | "playing" | "ended";
+type MoveDirection = -1 | 1;
 type TimedEffect = "poison" | "burn" | "attackSlow" | "moveSlow" | "reverse" | "defense" | "speed" | "invincible";
 type Effects = Record<Side, Partial<Record<TimedEffect, number>>>;
 
@@ -53,7 +60,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
   const [effectSnapshot, setEffectSnapshot] = useState<Effects>({ player: {}, rival: {} });
 
   const keys = useRef(new Set<string>());
-  const touchDirection = useRef(0);
+  const touchDirections = useRef(new Map<number, MoveDirection>());
   const playerZRef = useRef(0);
   const aiZRef = useRef(0);
   const fireAt = useRef(0);
@@ -93,6 +100,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
   }, [vesselFor]);
 
   const finish = useCallback((side: Side) => {
+    touchDirections.current.clear();
     modeRef.current = "ended";
     setWinner(side);
     setMode("ended");
@@ -230,6 +238,24 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
     launch("player", selectedVessel, playerZRef.current);
   }, [hasEffect, launch, selectedVessel]);
 
+  const beginTouchMove = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    direction: MoveDirection,
+  ) => {
+    event.preventDefault();
+    touchDirections.current.set(event.pointerId, direction);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const endTouchMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    touchDirections.current.delete(event.pointerId);
+  };
+
+  const throwOnPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    fire();
+  };
+
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       if (["ArrowLeft", "ArrowRight", "a", "d", "A", "D", " "].includes(event.key)) event.preventDefault();
@@ -245,12 +271,18 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
   useEffect(() => {
     const loop = window.setInterval(() => {
       if (modeRef.current !== "playing") return;
-      const left = keys.current.has("ArrowLeft") || keys.current.has("a") || keys.current.has("A") || touchDirection.current === 1;
-      const right = keys.current.has("ArrowRight") || keys.current.has("d") || keys.current.has("D") || touchDirection.current === -1;
+      let touchLeft = false;
+      let touchRight = false;
+      for (const direction of touchDirections.current.values()) {
+        if (direction === 1) touchLeft = true;
+        if (direction === -1) touchRight = true;
+      }
+      const left = keys.current.has("ArrowLeft") || keys.current.has("a") || keys.current.has("A") || touchLeft;
+      const right = keys.current.has("ArrowRight") || keys.current.has("d") || keys.current.has("D") || touchRight;
       const reversed = hasEffect("player", "reverse");
       const speed = hasEffect("player", "moveSlow") ? 0.05 : 0.09;
       if (left || right) {
-        const direction = right ? -1 : 1;
+        const direction = right ? 1 : -1;
         playerZRef.current = clamp(playerZRef.current + direction * speed * (reversed ? -1 : 1));
         setPlayerZ(playerZRef.current);
       }
@@ -293,6 +325,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
 
   const start = () => {
     if (!selectedVessel) return;
+    touchDirections.current.clear();
     const candidates = allVessels.filter((vessel) => vessel.id !== selectedVessel.id);
     const opponent = candidates[Math.floor(Math.random() * candidates.length)] ?? allVessels[0];
     setRival(opponent);
@@ -360,7 +393,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
     setAiZ(0);
     fireAt.current = 0;
     aiAt.current = 0;
-    touchDirection.current = 0;
+    touchDirections.current.clear();
     keys.current.clear();
     setNotice("器の能力を使って勝利をつかめ。");
     setMode("ready");
@@ -384,15 +417,22 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
       </section>
       <section className={`${styles.controls} ${mode !== "playing" ? styles.centerControls : ""}`}>
         <p className={mode === "ended" ? styles.result : ""}>{mode === "ended" ? resultText : notice}</p>
+        {mode === "playing" && <small className={styles.keyboardHelp}>左右キーで移動　スペースキーで器を投げる</small>}
         {mode === "ready" && <>
           <div className={styles.selectWrap}><select value={selectedVessel?.id ?? ""} onChange={(event) => onSelectVessel(event.target.value)}>{vessels.map((vessel) => <option key={vessel.id} value={vessel.id}>{vessel.name} / {vessel.abilityLabel}</option>)}</select></div>
           {selectedVessel && <div className={styles.abilityCard}><b>{selectedVessel.abilityLabel}</b><span>{selectedVessel.abilityDescription}</span></div>}
-          <label className={styles.challengeToggle}><input checked={challenge} onChange={(event) => setChallenge(event.target.checked)} type="checkbox"/>チャレンジ：敵は全能力・HP300・シールド5枚／あなたは3ストック</label>
+          <label className={styles.challengeToggle}><input checked={challenge} onChange={(event) => {
+            const enabled = event.target.checked;
+            const nextRivalHp = enabled ? 300 : 100;
+            setChallenge(enabled);
+            rivalHpRef.current = nextRivalHp;
+            setRivalHp(nextRivalHp);
+          }} type="checkbox"/>チャレンジ：敵は全能力・HP300・シールド5枚／あなたは3ストック</label>
         </>}
         {mode === "playing" ? <div className={styles.touchControls}>
-          <button aria-label="左へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = 1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>‹</button>
-          <button className={styles.throwButton} onClick={fire}>投げる</button>
-          <button aria-label="右へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = -1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>›</button>
+          <button aria-label="左へ移動" className={styles.moveButton} onLostPointerCapture={endTouchMove} onPointerCancel={endTouchMove} onPointerDown={(event) => beginTouchMove(event, 1)} onPointerUp={endTouchMove}>‹</button>
+          <button className={styles.throwButton} onPointerDown={throwOnPointerDown}>投げる</button>
+          <button aria-label="右へ移動" className={styles.moveButton} onLostPointerCapture={endTouchMove} onPointerCancel={endTouchMove} onPointerDown={(event) => beginTouchMove(event, -1)} onPointerUp={endTouchMove}>›</button>
         </div> : <div className={styles.actions}><button className={screen.primaryAction} disabled={!selectedVessel} onClick={start}>{mode === "ended" ? "再戦する" : "戦闘開始"}</button><button className={screen.secondaryAction} onClick={handleBack}>戻る</button></div>}
       </section>
     </div>
