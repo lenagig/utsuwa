@@ -7,3 +7,12 @@
 .abilityName{color:#f8bf66;font-size:.58rem;letter-spacing:.04em}.statuses{max-width:100%;overflow:hidden;color:#ff8e80;font-size:.56rem;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}.right .statuses{color:#79c9ff}.abilityCard{display:grid;gap:3px;width:100%;margin-top:9px;padding:9px 12px;border:1px solid #9d682d;border-radius:11px;background:#160d09d9;color:#ffe6bd;font-size:.7rem;text-align:left}.abilityCard b{color:#f9ba59;font-size:.76rem}.challengeToggle{display:flex;align-items:center;gap:7px;width:100%;margin-top:9px;color:#ffdd9d;font-size:.62rem;line-height:1.35;text-align:left}.challengeToggle input{width:16px;height:16px;accent-color:#e89123}
 .shield,.enraged{display:block;margin-top:3px;font-size:.56rem;font-weight:800;letter-spacing:.1em}.shield{color:#76c7ff}.enraged{color:#ff6758}
 .enrageCutin{position:absolute;z-index:8;inset:0;display:grid;place-content:center;gap:5px;pointer-events:none;background:linear-gradient(90deg,rgba(120,0,0,.8),rgba(10,0,0,.1),rgba(120,0,0,.8));color:#fff;text-align:center;animation:enrageCutin 1.3s ease-out both;text-shadow:0 3px 12px #000}.enrageCutin span{color:#ffb34f;font:800 .75rem Arial;letter-spacing:.45em}.enrageCutin strong{font:900 clamp(2rem,7vw,5rem)/1 Arial;letter-spacing:.08em}.enrageCutin small{color:#ffd4c4;font-weight:700;letter-spacing:.18em}@keyframes enrageCutin{0%{opacity:0;transform:scale(1.08)}15%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.98)}}
+
+.centerControls{position:absolute;top:50%;left:50%;width:min(100%,450px);transform:translate(-50%,-50%);margin:0}
+.actions{display:flex;justify-content:center;gap:12px}
+.actions button{flex:1;min-width:0;max-width:250px;width:min(100%,250px);min-height:54px;font-size:1rem}
+.actions button:last-child{flex:1;width:min(100%,250px)}
+.controls .result{font-size:2.2rem;line-height:1.2}
+.throwButton{border-radius:14px;color:#fff7e9;background:#d07a24;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;font-size:1rem;font-weight:700;box-shadow:0 14px 28px rgba(62,28,6,.28)}
+.throwButton:active{transform:translateY(1px);filter:brightness(1.08)}
+@media(max-width:640px){.centerControls{width:calc(100% - 28px)}}

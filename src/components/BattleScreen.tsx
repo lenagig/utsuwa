@@ -324,6 +324,48 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
     setMode("playing");
   };
 
+  function handleBack() {
+    if (mode !== "ended") {
+      onBack();
+      return;
+    }
+
+    modeRef.current = "ready";
+    playerHpRef.current = 100;
+    rivalHpRef.current = challenge ? 300 : 100;
+    setPlayerHp(100);
+    setRivalHp(rivalHpRef.current);
+    stocksRef.current = 1;
+    shieldRef.current = 0;
+    enragedRef.current = false;
+    setStocks(1);
+    setShield(0);
+    setEnraged(false);
+    setEnrageCutin(false);
+    revivingRef.current = false;
+    invincibleUntil.current = 0;
+    resolvedShots.current.clear();
+    effects.current = { player: {}, rival: {} };
+    dotAt.current = { player: 0, rival: 0 };
+    setEffectSnapshot({ player: {}, rival: {} });
+    rivalRef.current = null;
+    setRival(null);
+    setShots([]);
+    setHit(null);
+    setShake(0);
+    setWinner(null);
+    playerZRef.current = 0;
+    aiZRef.current = 0;
+    setPlayerZ(0);
+    setAiZ(0);
+    fireAt.current = 0;
+    aiAt.current = 0;
+    touchDirection.current = 0;
+    keys.current.clear();
+    setNotice("器の能力を使って勝利をつかめ。");
+    setMode("ready");
+  }
+
   const activeEffects = (side: Side) => Object.keys(effectSnapshot[side])
     .filter((effect) => (effectSnapshot[side][effect as TimedEffect] ?? 0) > Date.now())
     .map((effect) => effectLabel[effect as TimedEffect]);
@@ -332,14 +374,15 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
   return <main className={`${screen.titlePage} ${styles.battlePage} ${hit ? styles.hitFlash : ""}`}>
     <div className={styles.arena}><BattleArena3D aiZ={aiZ} hit={hit} player={selectedVessel} playerZ={playerZ} projectiles={shots} rival={rival} shake={shake} winner={winner}/></div>
     {enrageCutin && <div className={styles.enrageCutin}><span>WARNING</span><strong>BOSS ENRAGED</strong><small>攻撃力・防御力 上昇</small></div>}
+    <div className={screen.screenContent}>
     <div className={styles.hud}>
-      <header><span>UTSUWA ARENA</span><h1>器 闘 技 場</h1></header>
+      <header><h1>器 闘 技 場</h1></header>
       <section className={styles.health}>
         <FighterHud alignment="left" effects={activeEffects("player")} hp={playerHp} label="RED / YOU" vessel={selectedVessel} stocks={stocks}/>
         <em>VS</em>
         <FighterHud alignment="right" effects={activeEffects("rival")} hp={rivalHp} label={challenge ? "BLUE / CHALLENGE" : "BLUE / AI"} maxHp={challenge ? 300 : 100} vessel={rival} stocks={challenge ? 1 : undefined} shield={shield} enraged={enraged}/>
       </section>
-      <section className={styles.controls}>
+      <section className={`${styles.controls} ${mode !== "playing" ? styles.centerControls : ""}`}>
         <p className={mode === "ended" ? styles.result : ""}>{mode === "ended" ? resultText : notice}</p>
         {mode === "ready" && <>
           <div className={styles.selectWrap}><select value={selectedVessel?.id ?? ""} onChange={(event) => onSelectVessel(event.target.value)}>{vessels.map((vessel) => <option key={vessel.id} value={vessel.id}>{vessel.name} / {vessel.abilityLabel}</option>)}</select></div>
@@ -350,8 +393,9 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
           <button aria-label="左へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = 1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>‹</button>
           <button className={styles.throwButton} onClick={fire}>投げる</button>
           <button aria-label="右へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = -1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>›</button>
-        </div> : <div className={styles.actions}><button className={screen.primaryAction} disabled={!selectedVessel} onClick={start}>{mode === "ended" ? "再戦する" : "戦闘開始"}</button><button className={screen.secondaryAction} onClick={onBack}>戻る</button></div>}
+        </div> : <div className={styles.actions}><button className={screen.primaryAction} disabled={!selectedVessel} onClick={start}>{mode === "ended" ? "再戦する" : "戦闘開始"}</button><button className={screen.secondaryAction} onClick={handleBack}>戻る</button></div>}
       </section>
+    </div>
     </div>
   </main>;
 }
