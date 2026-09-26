@@ -18,7 +18,7 @@
 .accountAction button {
   min-height: 34px;
   border: 1px solid rgba(204, 147, 55, 0.92);
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 0 13px;
   color: #fff7e9;
   background: rgba(18, 11, 7, 0.72);
@@ -185,7 +185,7 @@
 @media (max-width: 640px) {
   .accountAction {
     top: 14px;
-    right: 14px;
+    right: max(0px, calc((100% - 380px) / 2));
   }
 
   .accountAction span {
