@@ -1,32 +1,26 @@
 .authPage {
   grid-template-rows: 1fr;
-  padding: 32px 20px;
+  height: auto;
+  min-height: 100svh;
+  overflow-y: auto;
+  padding: clamp(18px, 4svh, 36px) 20px;
 }
 
 .authPanel {
-  width: min(100%, 520px);
-  min-height: auto;
   justify-self: center;
   align-self: center;
-  padding: clamp(28px, 5vw, 52px);
-}
-
-.eyebrow {
-  margin: 0;
-  color: #dba74d;
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
 }
 
 .authPanel h1 {
-  margin: 10px 0 8px;
+  margin: 0 0 8px;
   color: #ffe2a5;
   font-size: clamp(2.25rem, 5vw, 3.2rem);
   font-weight: 500;
+  text-align: center;
 }
 
 .lead {
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   color: rgba(250, 229, 195, 0.84);
   font-size: 0.9rem;
   line-height: 1.8;
@@ -35,14 +29,14 @@
 .switcher {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   overflow: hidden;
   border: 1px solid rgba(204, 147, 55, 0.6);
   border-radius: 10px;
 }
 
 .switcher button {
-  min-height: 42px;
+  min-height: 40px;
   border: 0;
   color: rgba(250, 229, 195, 0.8);
   background: transparent;
@@ -57,11 +51,11 @@
 
 .form {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .form label {
-  margin-top: 6px;
+  margin-top: 2px;
   color: #f7e3bd;
   font-size: 0.88rem;
 }
@@ -72,7 +66,7 @@
 }
 
 .form input {
-  min-height: 48px;
+  min-height: 44px;
   border: 1px solid rgba(210, 146, 45, 0.85);
   border-radius: 7px;
   padding: 0 13px;
@@ -88,9 +82,8 @@
 }
 
 .form button {
-  width: min(100%, 280px);
   justify-self: center;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .message {
@@ -102,5 +95,17 @@
 
 .authPanel > button:last-child {
   justify-self: center;
-  margin-top: 16px;
+  margin-top: 10px;
+}
+
+@media (min-width: 641px) {
+  .authPage {
+    overflow-y: hidden;
+  }
+}
+
+@media (max-width: 640px) {
+  .authPage {
+    padding: 16px;
+  }
 }

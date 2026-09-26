@@ -63,36 +63,37 @@ export function AuthScreen({ onBack, onAuthenticated }: AuthScreenProps) {
 
   return (
     <main className={`${screen.titlePage} ${styles.authPage}`}>
-      <section className={`${screen.titlePanel} ${styles.authPanel}`}>
-        <p className={styles.eyebrow}>UTSUWA ACCOUNT</p>
-        <h1>{mode === "login" ? "ログイン" : "新規登録"}</h1>
-        <p className={styles.lead}>図鑑の解放状態を、どの端末でも引き継げます。</p>
+      <div className={screen.screenContent}>
+        <section className={`${screen.titlePanel} ${styles.authPanel}`}>
+          <h1>{mode === "login" ? "ログイン" : "新規登録"}</h1>
+          <p className={styles.lead}>図鑑の解放状態を、どの端末でも引き継げます。</p>
 
-        <div className={styles.switcher} role="tablist" aria-label="認証方法">
-          <button className={mode === "login" ? styles.active : ""} onClick={() => setMode("login")} type="button">ログイン</button>
-          <button className={mode === "signup" ? styles.active : ""} onClick={() => setMode("signup")} type="button">新規登録</button>
-        </div>
+          <div className={styles.switcher} role="tablist" aria-label="認証方法">
+            <button className={mode === "login" ? styles.active : ""} onClick={() => setMode("login")} type="button">ログイン</button>
+            <button className={mode === "signup" ? styles.active : ""} onClick={() => setMode("signup")} type="button">新規登録</button>
+          </div>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          {mode === "signup" && (
-            <>
-              <label htmlFor="username">ユーザー名</label>
-              <input id="username" maxLength={32} onChange={(event) => setUsername(event.target.value)} required value={username} />
-              <label htmlFor="location">住んでいるところ <span>任意</span></label>
-              <input id="location" maxLength={80} onChange={(event) => setLocation(event.target.value)} placeholder="例：東京都" value={location} />
-            </>
-          )}
-          <label htmlFor="email">メールアドレス</label>
-          <input id="email" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
-          <label htmlFor="password">パスワード</label>
-          <input id="password" minLength={6} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
-          {message && <p className={styles.message} role="status">{message}</p>}
-          <button className={screen.primaryAction} disabled={isSubmitting} type="submit">
-            {isSubmitting ? "処理中…" : mode === "login" ? "ログインする" : "登録する"}
-          </button>
-        </form>
-        <button className={screen.secondaryAction} onClick={onBack} type="button">戻る</button>
-      </section>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            {mode === "signup" && (
+              <>
+                <label htmlFor="username">ユーザー名</label>
+                <input id="username" maxLength={32} onChange={(event) => setUsername(event.target.value)} required value={username} />
+                <label htmlFor="location">住んでいる都道府県 <span>任意</span></label>
+                <input id="location" maxLength={80} onChange={(event) => setLocation(event.target.value)} placeholder="例：東京都" value={location} />
+              </>
+            )}
+            <label htmlFor="email">メールアドレス</label>
+            <input id="email" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
+            <label htmlFor="password">パスワード</label>
+            <input id="password" minLength={6} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
+            {message && <p className={styles.message} role="status">{message}</p>}
+            <button className={screen.primaryAction} disabled={isSubmitting} type="submit">
+              {isSubmitting ? "処理中…" : mode === "login" ? "ログインする" : "登録する"}
+            </button>
+          </form>
+          <button className={screen.secondaryAction} onClick={onBack} type="button">戻る</button>
+        </section>
+      </div>
     </main>
   );
 }
