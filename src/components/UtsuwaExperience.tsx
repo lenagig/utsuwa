@@ -10,6 +10,7 @@ import { TitleScreen } from "@/components/TitleScreen";
 import { WeatherScreen } from "@/components/WeatherScreen";
 import { vessels } from "@/data/vessels";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import type { IrritationForecast } from "@/lib/irritation-weather";
 import type { Vessel } from "@/types/vessel";
 
 type View = "title" | "auth" | "result" | "catalog" | "battle" | "weather";
@@ -19,6 +20,7 @@ type AccountResponse = {
   profile: { username: string; location: string | null } | null;
   unlockedVesselIds: string[];
   nationalTodayCount: number;
+  irritationForecast: IrritationForecast;
 };
 
 export function UtsuwaExperience() {
@@ -32,6 +34,7 @@ export function UtsuwaExperience() {
   const [battleVesselId, setBattleVesselId] = useState<string | null>(null);
   const [unlockedVesselIds, setUnlockedVesselIds] = useState<string[]>([]);
   const [nationalTodayCount, setNationalTodayCount] = useState(0);
+  const [irritationForecast, setIrritationForecast] = useState<IrritationForecast | null>(null);
 
   const unlockedVessels = vessels.filter((vessel) => unlockedVesselIds.includes(vessel.id));
   const battleVessel =
@@ -45,6 +48,7 @@ export function UtsuwaExperience() {
       setUsername(null);
       setUnlockedVesselIds([]);
       setNationalTodayCount(0);
+      setIrritationForecast(null);
       return;
     }
 
@@ -56,6 +60,7 @@ export function UtsuwaExperience() {
     setUsername(data.profile?.username ?? nextSession.user.user_metadata.username ?? null);
     setUnlockedVesselIds(data.unlockedVesselIds);
     setNationalTodayCount(data.nationalTodayCount);
+    setIrritationForecast(data.irritationForecast);
   }, []);
 
   useEffect(() => {
@@ -147,7 +152,7 @@ export function UtsuwaExperience() {
   }
 
   if (view === "weather") {
-    return <WeatherScreen nationalTodayCount={nationalTodayCount} onBack={() => setView("title")} />;
+    return <WeatherScreen nationalTodayCount={nationalTodayCount} forecast={irritationForecast} onBack={() => setView("title")} />;
   }
 
   return <TitleScreen onOpenAuth={() => setView("auth")} onOpenBattle={() => setView("battle")} onOpenCatalog={() => setView("catalog")} onOpenWeather={() => setView("weather")} onSelectVessel={handleSelectVessel} onSignOut={handleSignOut} username={username} />;
