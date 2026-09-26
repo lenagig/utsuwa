@@ -1,143 +1,25 @@
-.battlePage {
-  grid-template-rows: 1fr;
-  padding: clamp(24px, 6svh, 64px) 24px clamp(32px, 7svh, 72px);
-}
-
-.battlePage.battlePage::before {
-  background-image: url("/images/battle-arena.png");
-}
-
-.battlePanel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: clamp(500px, 68svh, 580px);
-  text-align: center;
-}
-
-.battleTitle {
-  margin: 0 0 28px;
-  color: #ffe2a5;
-  font-size: clamp(3rem, 5.5vw, 3.4rem);
-  font-weight: 500;
-  line-height: 1;
-  text-align: center;
-  text-shadow: 0 0 14px rgba(255, 190, 93, 0.22);
-}
-
-.battleLead {
-  align-self: stretch;
-  margin: 0 0 12px;
-  color: rgba(250, 229, 195, 0.92);
-  font-size: 0.82rem;
-  line-height: 1.8;
-  text-align: left;
-}
-
-.vesselSelectWrap {
-  position: relative;
-  width: 100%;
-}
-
-.vesselSelect {
-  width: 100%;
-  min-height: 40px;
-  border: 1px solid rgba(204, 147, 55, 0.72);
-  border-radius: 15px;
-  padding: 0 42px 0 15px;
-  appearance: none;
-  color: #f6ead4;
-  background: rgba(18, 11, 7, 0.76);
-  font-family:
-    "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  font-size: 0.82rem;
-  text-align: left;
-  text-overflow: ellipsis;
-  cursor: pointer;
-}
-
-.vesselSelect:focus-visible {
-  outline: 2px solid #ffd37e;
-  outline-offset: 2px;
-}
-
-.vesselSelect:disabled {
-  color: rgba(250, 229, 195, 0.62);
-  cursor: not-allowed;
-}
-
-.vesselSelect option {
-  color: #f6ead4;
-  background: #1a100a;
-}
-
-.selectArrow {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  color: #f6ead4;
-  font-size: 1.35rem;
-  line-height: 1;
-  pointer-events: none;
-  transform: translateY(-55%);
-}
-
-.battleMessage {
-  align-self: stretch;
-  margin: 12px 0 0;
-  color: rgba(250, 229, 195, 0.82);
-  font-size: 0.8rem;
-  line-height: 1.6;
-  text-align: center;
-}
-
-.battleActions {
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-  width: 100%;
-  margin-top: auto;
-  padding-top: 48px;
-}
-
-.fightAction:disabled {
-  filter: grayscale(0.5);
-  opacity: 0.56;
-  cursor: not-allowed;
-}
-
-@media (max-width: 640px) {
-  .battlePage {
-    padding: 24px 16px 34px;
-  }
-
-  .battlePanel {
-    width: min(100%, 380px);
-    min-height: 500px;
-  }
-
-  .battleTitle {
-    margin-bottom: 24px;
-  }
-
-  .battleActions {
-    padding-top: 36px;
-  }
-}
-
-@media (max-height: 720px) and (min-width: 641px) {
-  .battlePage {
-    padding-top: 28px;
-    padding-bottom: 28px;
-  }
-
-  .battlePanel {
-    min-height: 500px;
-    padding-top: 34px;
-    padding-bottom: 30px;
-  }
-
-  .battleActions {
-    padding-top: 32px;
-  }
-}
+.battlePage { isolation: isolate; padding: 0; overflow: hidden; }
+.battlePage.battlePage::before { background-image: url("/images/battle-arena.png"); filter: brightness(.5) saturate(1.15); }
+.battlePage::after { background: linear-gradient(180deg, rgba(4,2,1,.15), rgba(4,2,1,.05) 45%, rgba(4,2,1,.78)); }
+.arena { position:absolute; z-index:1; inset:0; pointer-events:none; }
+.arena canvas { width:100% !important; height:100% !important; }
+.hud { position:relative; z-index:2; display:grid; grid-template-rows:auto 1fr auto; width:min(100%, 1060px); height:100%; padding:clamp(20px,4vh,46px) clamp(16px,4vw,54px) clamp(18px,3.5vh,36px); pointer-events:none; }
+.heading { color:#ffe2a5; text-align:center; text-shadow:0 3px 20px #000; }
+.heading span { display:block; color:#d9933d; font-family:Arial,sans-serif; font-size:.66rem; font-weight:700; letter-spacing:.34em; }
+.heading h1 { margin:5px 0 3px; font-size:clamp(2.2rem,5vw,4.2rem); font-weight:500; line-height:1; }
+.heading p { margin:0; color:rgba(255,237,207,.85); font-size:.82rem; }
+.statusCard { align-self:end; width:min(100%,680px); margin:0 auto clamp(14px,2.2vh,24px); padding:14px 18px; border:1px solid rgba(214,151,53,.7); border-radius:14px; background:linear-gradient(110deg,rgba(25,10,7,.8),rgba(13,8,7,.7)); box-shadow:0 14px 44px rgba(0,0,0,.4); backdrop-filter:blur(7px); }
+.combatants { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:14px; }
+.combatants div { display:grid; min-width:0; gap:3px; }
+.combatants .rival { text-align:right; }
+.combatants span { font-family:Arial,sans-serif; font-size:.58rem; font-weight:800; letter-spacing:.13em; }
+.redMark { color:#ff7777; }.blueMark { color:#72bdff; }
+.combatants strong { overflow:hidden; color:#ffedce; font-size:clamp(.76rem,1.6vw,1rem); font-weight:500; white-space:nowrap; text-overflow:ellipsis; }
+.combatants small { color:rgba(255,237,207,.7); font-family:Arial,sans-serif; font-size:.63rem; letter-spacing:.04em; }
+.combatants b { color:#f2bd67; font-family:Arial,sans-serif; font-size:.86rem; letter-spacing:.08em; }
+.battleMessage { margin:11px 0 0; color:#ffe5b0; font-size:.76rem; text-align:center; }
+.controls { display:grid; justify-items:center; width:min(100%,460px); margin:0 auto; pointer-events:auto; }
+.controls label { align-self:start; width:100%; margin:0 0 6px 4px; color:#f5dcae; font-size:.72rem; }
+.vesselSelectWrap { position:relative; width:100%; }.vesselSelect { width:100%; min-height:45px; border:1px solid rgba(216,151,48,.86); border-radius:12px; padding:0 42px 0 15px; appearance:none; color:#fff0d2; background:rgba(13,8,6,.82); font:inherit; font-size:.82rem; cursor:pointer; }.vesselSelect:disabled { opacity:.58; cursor:not-allowed; }.vesselSelect option { color:#fff0d2; background:#201109; }.selectArrow { position:absolute; top:45%; right:15px; color:#ffd689; font-size:1.2rem; pointer-events:none; transform:translateY(-50%); }
+.battleActions { display:flex; justify-content:center; gap:12px; width:100%; margin-top:12px; }.fightAction,.backAction { min-height:46px; font-size:.87rem; }.fightAction { flex:1; }.backAction { width:34%; }.fightAction:disabled { opacity:.56; cursor:not-allowed; }
+@media (max-width:640px) { .hud { padding:22px 14px 24px; }.heading h1 { font-size:2.4rem; }.statusCard { padding:12px; }.combatants { gap:7px; }.combatants strong { font-size:.7rem; }.combatants small { font-size:.54rem; }.battleMessage { font-size:.68rem; }.controls { width:100%; }.backAction { width:34%; } }
