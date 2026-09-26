@@ -15,6 +15,7 @@ export type FlyingVessel = {
   progress: number;
   vessel: Vessel;
   z: number;
+  hidden?: boolean;
 };
 
 type Props = {
@@ -128,7 +129,7 @@ function Projectile({
       <VesselImage
         url={shot.vessel.imageUrl}
         transparent
-        opacity={0.98}
+        opacity={shot.hidden ? 0.22 : 0.98}
         scale={[1.1, 1.1]}
       />
       <mesh position={[0, 0, -0.07]}>
@@ -136,7 +137,7 @@ function Projectile({
         <meshBasicMaterial
           color={shot.owner === "player" ? "#ef4848" : "#55afff"}
           transparent
-          opacity={0.42}
+          opacity={shot.hidden ? 0.08 : 0.42}
         />
       </mesh>
     </group>
