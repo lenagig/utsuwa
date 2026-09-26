@@ -5,7 +5,7 @@ import { useMemo, useRef } from "react";
 import type { Group } from "three";
 import type { Vessel } from "@/types/vessel";
 
-export type FlyingVessel = { id: number; owner: "player" | "rival"; progress: number; vessel: Vessel; z: number };
+export type FlyingVessel = { id: number; owner: "player" | "rival"; progress: number; vessel: Vessel; z: number; hidden?: boolean };
 type Props = { aiZ: number; hit: "player" | "rival" | null; player: Vessel | null; playerZ: number; projectiles: FlyingVessel[]; rival: Vessel | null; shake: number; winner: "player" | "rival" | null };
 
 function Fighter({ color, side, z, throwing, defeated }: { color: string; side: -1 | 1; z: number; throwing: boolean; defeated: boolean }) {
@@ -19,7 +19,7 @@ function Fighter({ color, side, z, throwing, defeated }: { color: string; side: 
     <mesh castShadow position={[side*.45,.58,0]} rotation={[0,0,side*.2]}><capsuleGeometry args={[.14,.86,6,16]}/><meshStandardMaterial color={color}/></mesh>
   </group>;
 }
-function Projectile({ shot }: { shot: FlyingVessel }) { const x = shot.owner === "player" ? -4.05 + shot.progress * 8.1 : 4.05 - shot.progress * 8.1; const y = -.1 + Math.sin(shot.progress*Math.PI)*1.55; return <group position={[x,y,shot.z]} rotation={[0,0,(shot.owner === "player" ? 1 : -1)*shot.progress*10]}><VesselImage url={shot.vessel.imageUrl} transparent opacity={.98} scale={[1.1,1.1]}/><mesh position={[0,0,-.07]}><circleGeometry args={[.58,30]}/><meshBasicMaterial color={shot.owner === "player" ? "#ef4848" : "#55afff"} transparent opacity={.42}/></mesh></group>; }
+function Projectile({ shot }: { shot: FlyingVessel }) { const x = shot.owner === "player" ? -4.05 + shot.progress * 8.1 : 4.05 - shot.progress * 8.1; const y = -.1 + Math.sin(shot.progress*Math.PI)*1.55; const opacity = shot.hidden ? .22 : .98; return <group position={[x,y,shot.z]} rotation={[0,0,(shot.owner === "player" ? 1 : -1)*shot.progress*10]}><VesselImage url={shot.vessel.imageUrl} transparent opacity={opacity} scale={[1.1,1.1]}/><mesh position={[0,0,-.07]}><circleGeometry args={[.58,30]}/><meshBasicMaterial color={shot.owner === "player" ? "#ef4848" : "#55afff"} transparent opacity={shot.hidden ? .08 : .42}/></mesh></group>; }
 function Sparks({ active, color }: { active:boolean;color:string }) { const pieces=useMemo(()=>Array.from({length:36},(_,i)=>({a:i*.74,r:.15+(i%7)*.13,y:((i%6)-3)*.13})),[]); if(!active)return null; return <group position={[0,.45,0]}>{pieces.map((p,i)=><mesh key={i} position={[Math.cos(p.a)*p.r,p.y,Math.sin(p.a)*p.r]}><sphereGeometry args={[.035+(i%3)*.018,8,8]}/><meshBasicMaterial color={color}/></mesh>)}</group>; }
 function Scene({ aiZ, hit, playerZ, projectiles, shake, winner }: Props) { const cameraRig=useRef<Group>(null); useFrame(({clock})=>{if(cameraRig.current){const s=shake>0?.09:0;cameraRig.current.position.x=Math.sin(clock.getElapsedTime()*48)*s;cameraRig.current.position.y=Math.cos(clock.getElapsedTime()*55)*s;}}); const pThrow=projectiles.some(s=>s.owner==="player"), rThrow=projectiles.some(s=>s.owner==="rival"); return <group ref={cameraRig}>
   <ambientLight intensity={.5}/><directionalLight castShadow color="#ffbd6f" intensity={2.8} position={[1,7,5]}/><pointLight color="#ff5d25" intensity={hit?10:1.2} distance={8} position={[0,.8,1]}/>
