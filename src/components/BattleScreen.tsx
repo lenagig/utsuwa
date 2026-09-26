@@ -1,66 +1,20 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { BattleArena3D, type BattlePhase } from "@/components/BattleArena3D";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BattleArena3D, type FlyingVessel } from "@/components/BattleArena3D";
 import type { Vessel } from "@/types/vessel";
 import screen from "@/components/Screen.module.css";
 import styles from "@/components/BattleScreen.module.css";
-
-type BattleScreenProps = {
-  onBack: () => void;
-  onSelectVessel: (vesselId: string) => void;
-  vessels: Vessel[];
-  selectedVessel: Vessel | null;
-};
-
-type Result = { loser: "player" | "rival"; winner: "player" | "rival" } | null;
-
-export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }: BattleScreenProps) {
-  const [phase, setPhase] = useState<BattlePhase>("idle");
-  const [rival, setRival] = useState<Vessel | null>(null);
-  const [result, setResult] = useState<Result>(null);
-  const isFighting = phase !== "idle" && phase !== "result";
-
-  const rivalLabel = useMemo(() => rival?.name ?? "対戦相手を待っています", [rival]);
-
-  function startBattle() {
-    if (!selectedVessel || isFighting) return;
-    const candidates = vessels.filter((vessel) => vessel.id !== selectedVessel.id);
-    const opponent = candidates[Math.floor(Math.random() * candidates.length)] ?? selectedVessel;
-    const playerScore = selectedVessel.attack + selectedVessel.hp * 0.42 + Math.random() * 14;
-    const rivalScore = opponent.attack + opponent.hp * 0.42 + Math.random() * 14;
-    const nextResult: Result = playerScore >= rivalScore ? { winner: "player", loser: "rival" } : { winner: "rival", loser: "player" };
-    setRival(opponent);
-    setResult(null);
-    setPhase("windup");
-    window.setTimeout(() => setPhase("throw"), 760);
-    window.setTimeout(() => setPhase("impact"), 1700);
-    window.setTimeout(() => { setResult(nextResult); setPhase("result"); }, 2220);
-  }
-
-  const message = result
-    ? result.winner === "player" ? "勝利。相手の器が中央で砕け散った。" : "敗北。あなたの器が中央で砕け散った。"
-    : isFighting ? "器が闘技場の中央へ飛んでいく……" : "器を選び、闘技場へ。";
-
-  return (
-    <main className={`${screen.titlePage} ${styles.battlePage}`}>
-      <div className={styles.arena}><BattleArena3D loser={result?.loser ?? null} phase={phase} player={selectedVessel} rival={rival} /></div>
-      <div className={styles.hud}>
-        <header className={styles.heading}><span>UTSUWA ARENA</span><h1>バトル</h1><p>赤と青、ふたつの器がぶつかる。</p></header>
-        <section className={styles.statusCard} aria-live="polite">
-          <div className={styles.combatants}>
-            <div><span className={styles.redMark}>PLAYER</span><strong>{selectedVessel?.name ?? "器を選んでください"}</strong><small>HP {selectedVessel?.hp ?? "--"}　ATK {selectedVessel?.attack ?? "--"}</small></div>
-            <b>VS</b>
-            <div className={styles.rival}><span className={styles.blueMark}>RIVAL</span><strong>{rivalLabel}</strong><small>{rival ? `HP ${rival.hp}　ATK ${rival.attack}` : "戦闘開始時に決定"}</small></div>
-          </div>
-          <p className={styles.battleMessage}>{message}</p>
-        </section>
-        <section className={styles.controls}>
-          <label htmlFor="battle-vessel">あなたの器</label>
-          <div className={styles.vesselSelectWrap}><select className={styles.vesselSelect} disabled={vessels.length === 0 || isFighting} id="battle-vessel" onChange={(event) => { onSelectVessel(event.target.value); setRival(null); setResult(null); setPhase("idle"); }} value={selectedVessel?.id ?? ""}>{vessels.length === 0 ? <option value="">解放済みの器がありません</option> : vessels.map((vessel) => <option key={vessel.id} value={vessel.id}>{vessel.name}</option>)}</select><span aria-hidden="true" className={styles.selectArrow}>⌄</span></div>
-          <div className={styles.battleActions}><button className={`${screen.primaryAction} ${styles.fightAction}`} disabled={!selectedVessel || isFighting} onClick={startBattle} type="button">{phase === "result" ? "もう一度戦う" : "戦う"}</button><button className={`${screen.secondaryAction} ${styles.backAction}`} onClick={onBack} type="button">戻る</button></div>
-        </section>
-      </div>
-    </main>
-  );
+type Props={onBack:()=>void;onSelectVessel:(id:string)=>void;vessels:Vessel[];selectedVessel:Vessel|null};
+const clamp=(n:number)=>Math.max(-2.6,Math.min(2.6,n)); const damage=(v:Vessel)=>Math.round(12+v.attack/11);
+export function BattleScreen({onBack,onSelectVessel,vessels,selectedVessel}:Props){
+ const [mode,setMode]=useState<"ready"|"playing"|"ended">("ready"),[playerHp,setPlayerHp]=useState(100),[rivalHp,setRivalHp]=useState(100),[playerZ,setPlayerZ]=useState(0),[aiZ,setAiZ]=useState(0),[shots,setShots]=useState<FlyingVessel[]>([]),[rival,setRival]=useState<Vessel|null>(null),[hit,setHit]=useState<"player"|"rival"|null>(null),[winner,setWinner]=useState<"player"|"rival"|null>(null),[shake,setShake]=useState(0);
+ const keys=useRef(new Set<string>()),touchDirection=useRef(0),pz=useRef(0),az=useRef(0),fireAt=useRef(0),aiAt=useRef(0),nextId=useRef(1),modeRef=useRef(mode),rivalRef=useRef<Vessel|null>(null); useEffect(()=>{modeRef.current=mode},[mode]); useEffect(()=>{rivalRef.current=rival},[rival]);
+ function finish(side:"player"|"rival"){setWinner(side);setMode("ended");}
+ const fire=useCallback(()=>{if(modeRef.current!=="playing"||!selectedVessel)return;const now=Date.now();if(now-fireAt.current<650)return;fireAt.current=now;setShots(old=>old.filter(s=>s.owner==="player").length>=3?old:[...old,{id:nextId.current++,owner:"player",progress:0,vessel:selectedVessel,z:pz.current}])},[selectedVessel]);
+ useEffect(()=>{const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","a","d","A","D"," "].includes(e.key))e.preventDefault();keys.current.add(e.key);if(e.key===" ")fire()};const up=(e:KeyboardEvent)=>keys.current.delete(e.key);window.addEventListener("keydown",down);window.addEventListener("keyup",up);return()=>{window.removeEventListener("keydown",down);window.removeEventListener("keyup",up)};},[selectedVessel,mode,fire]);
+ useEffect(()=>{const loop=window.setInterval(()=>{if(modeRef.current!=="playing")return;const left=keys.current.has("ArrowLeft")||keys.current.has("a")||keys.current.has("A")||touchDirection.current===1,right=keys.current.has("ArrowRight")||keys.current.has("d")||keys.current.has("D")||touchDirection.current===-1;if(left||right){pz.current=clamp(pz.current+(right?-.09:.09));setPlayerZ(pz.current)}az.current=clamp(az.current+(Math.random()-.5)*.18);setAiZ(az.current);const now=Date.now();if(now-aiAt.current>900+Math.random()*500){aiAt.current=now;const v=rivalRef.current;if(v)setShots(old=>old.filter(s=>s.owner==="rival").length>=3?old:[...old,{id:nextId.current++,owner:"rival",progress:0,vessel:v,z:az.current}])}},45);return()=>clearInterval(loop)},[]);
+ useEffect(()=>{const loop=window.setInterval(()=>{if(modeRef.current!=="playing")return;setShots(old=>{const next: FlyingVessel[]=[];for(const shot of old){const moved={...shot,progress:shot.progress+.035};if(moved.progress<1){next.push(moved);continue}const target=shot.owner==="player"?az.current:pz.current;if(Math.abs(moved.z-target)<.72){const targetSide=shot.owner==="player"?"rival":"player";setHit(targetSide);setShake(1);window.setTimeout(()=>{setHit(null);setShake(0)},350);if(targetSide==="rival")setRivalHp(h=>{const n=Math.max(0,h-damage(shot.vessel));if(n===0)finish("player");return n});else setPlayerHp(h=>{const n=Math.max(0,h-damage(shot.vessel));if(n===0)finish("rival");return n})}}return next});},50);return()=>clearInterval(loop)},[]);
+ function start(){if(!selectedVessel)return;const candidates=vessels.filter(v=>v.id!==selectedVessel.id);setRival(candidates[Math.floor(Math.random()*candidates.length)]??selectedVessel);setPlayerHp(100);setRivalHp(100);setShots([]);setWinner(null);pz.current=0;az.current=0;setPlayerZ(0);setAiZ(0);setMode("playing")}
+ const text=mode==="ended"?(winner==="player"?"勝利":"敗北"):mode==="playing"?"左右移動で回避　SPACEで投げる":"器を選んで開始";
+ return <main className={`${screen.titlePage} ${styles.battlePage} ${hit?styles.hitFlash:""}`}><div className={styles.arena}><BattleArena3D aiZ={aiZ} hit={hit} player={selectedVessel} playerZ={playerZ} projectiles={shots} rival={rival} shake={shake} winner={winner}/></div><div className={styles.hud}><header><span>UTSUWA ARENA</span><h1>器 闘 技 場</h1></header><section className={styles.health}><div className={styles.fighter}><b>RED / YOU</b><strong>{selectedVessel?.name??"器を選択"}</strong><div><i style={{width:`${playerHp}%`}}/></div><small>HP {playerHp}　ATK {selectedVessel?.attack??"--"}</small></div><em>VS</em><div className={styles.fighter}><b>BLUE / AI</b><strong>{rival?.name??"対戦相手"}</strong><div><i style={{width:`${rivalHp}%`}}/></div><small>HP {rivalHp}　ATK {rival?.attack??"--"}</small></div></section><section className={styles.controls}><p className={mode==="ended"?styles.result:""}>{text}</p>{mode==="ready"&&<div className={styles.selectWrap}><select value={selectedVessel?.id??""} onChange={e=>onSelectVessel(e.target.value)}>{vessels.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div>}{mode==="playing"?<div className={styles.touchControls}><button aria-label="左へ移動" className={styles.moveButton} onPointerCancel={()=>touchDirection.current=0} onPointerDown={()=>touchDirection.current=1} onPointerLeave={()=>touchDirection.current=0} onPointerUp={()=>touchDirection.current=0}>‹</button><button className={styles.throwButton} onClick={fire}>投げる</button><button aria-label="右へ移動" className={styles.moveButton} onPointerCancel={()=>touchDirection.current=0} onPointerDown={()=>touchDirection.current=-1} onPointerLeave={()=>touchDirection.current=0} onPointerUp={()=>touchDirection.current=0}>›</button></div>:<div className={styles.actions}><button className={screen.primaryAction} disabled={!selectedVessel} onClick={start}>{mode==="ended"?"再戦する":"戦闘開始"}</button><button className={screen.secondaryAction} onClick={onBack}>戻る</button></div>}</section></div></main>;
 }
