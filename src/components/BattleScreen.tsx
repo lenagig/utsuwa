@@ -14,6 +14,7 @@ type Effects = Record<Side, Partial<Record<TimedEffect, number>>>;
 
 type Props = {
   onBack: () => void;
+  onOpenOnline: () => void;
   onSelectVessel: (id: string) => void;
   vessels: Vessel[];
   selectedVessel: Vessel | null;
@@ -33,7 +34,7 @@ const effectLabel: Record<TimedEffect, string> = {
   invincible: "復活無敵",
 };
 
-export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }: Props) {
+export function BattleScreen({ onBack, onOpenOnline, onSelectVessel, vessels, selectedVessel }: Props) {
   const [mode, setMode] = useState<Mode>("ready");
   const [challenge, setChallenge] = useState(false);
   const [playerHp, setPlayerHp] = useState(100);
@@ -232,7 +233,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
-      if (["ArrowLeft", "ArrowRight", "a", "d", "A", "D", " "].includes(event.key)) event.preventDefault();
+      if (["ArrowUp", "ArrowDown", "w", "s", "W", "S", " "].includes(event.key)) event.preventDefault();
       keys.current.add(event.key);
       if (event.key === " ") fire();
     };
@@ -245,12 +246,13 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
   useEffect(() => {
     const loop = window.setInterval(() => {
       if (modeRef.current !== "playing") return;
-      const left = keys.current.has("ArrowLeft") || keys.current.has("a") || keys.current.has("A") || touchDirection.current === 1;
-      const right = keys.current.has("ArrowRight") || keys.current.has("d") || keys.current.has("D") || touchDirection.current === -1;
+      const up = keys.current.has("ArrowUp") || keys.current.has("w") || keys.current.has("W") || touchDirection.current === 1;
+      const down = keys.current.has("ArrowDown") || keys.current.has("s") || keys.current.has("S") || touchDirection.current === -1;
       const reversed = hasEffect("player", "reverse");
       const speed = hasEffect("player", "moveSlow") ? 0.05 : 0.09;
-      if (left || right) {
-        const direction = right ? -1 : 1;
+      if (up || down) {
+        // 画面上の奥行きとThree.jsのZ軸が反対なので、操作方向を反転する。
+        const direction = down ? 1 : -1;
         playerZRef.current = clamp(playerZRef.current + direction * speed * (reversed ? -1 : 1));
         setPlayerZ(playerZRef.current);
       }
@@ -345,11 +347,12 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
           <div className={styles.selectWrap}><select value={selectedVessel?.id ?? ""} onChange={(event) => onSelectVessel(event.target.value)}>{vessels.map((vessel) => <option key={vessel.id} value={vessel.id}>{vessel.name} / {vessel.abilityLabel}</option>)}</select></div>
           {selectedVessel && <div className={styles.abilityCard}><b>{selectedVessel.abilityLabel}</b><span>{selectedVessel.abilityDescription}</span></div>}
           <label className={styles.challengeToggle}><input checked={challenge} onChange={(event) => setChallenge(event.target.checked)} type="checkbox"/>チャレンジ：敵は全能力・HP300・シールド5枚／あなたは3ストック</label>
+          <button className={styles.onlineButton} disabled={!selectedVessel} onClick={onOpenOnline}>ONLINE MATCH　オンライン対戦</button>
         </>}
         {mode === "playing" ? <div className={styles.touchControls}>
-          <button aria-label="左へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = 1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>‹</button>
+          <button aria-label="上へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = 1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>↑</button>
           <button className={styles.throwButton} onClick={fire}>投げる</button>
-          <button aria-label="右へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = -1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>›</button>
+          <button aria-label="下へ移動" className={styles.moveButton} onPointerCancel={() => { touchDirection.current = 0; }} onPointerDown={() => { touchDirection.current = -1; }} onPointerLeave={() => { touchDirection.current = 0; }} onPointerUp={() => { touchDirection.current = 0; }}>↓</button>
         </div> : <div className={styles.actions}><button className={screen.primaryAction} disabled={!selectedVessel} onClick={start}>{mode === "ended" ? "再戦する" : "戦闘開始"}</button><button className={screen.secondaryAction} onClick={onBack}>戻る</button></div>}
       </section>
     </div>

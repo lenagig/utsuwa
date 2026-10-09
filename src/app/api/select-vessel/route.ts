@@ -53,7 +53,11 @@ export async function POST(request: Request) {
       { user_id: userId, vessel_id: vessel.id },
       { onConflict: "user_id,vessel_id", ignoreDuplicates: true },
     ),
-    supabase.from("vessel_creations").insert({ user_id: userId, vessel_id: vessel.id }),
+    supabase.from("vessel_creations").insert({
+      user_id: userId,
+      vessel_id: vessel.id,
+      input_text: inputText.trim() || null,
+    }),
     supabase.rpc("increment_daily_vessel_count", { p_stat_date: getJapanDate() }),
   ]);
 
