@@ -19,18 +19,39 @@ create table if not exists public.vessel_creations (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   vessel_id text not null,
+  input_text text,
   created_at timestamptz not null default now()
 );
+
+alter table public.vessel_creations
+  add column if not exists input_text text;
 
 create table if not exists public.daily_vessel_stats (
   stat_date date primary key,
   created_count integer not null default 0 check (created_count >= 0)
 );
 
+-- オンライン対戦の待機部屋。対戦中のRealtime通信には id を使います。
+create table if not exists public.battle_rooms (
+  id uuid primary key default gen_random_uuid(),
+  room_code text not null unique check (room_code ~ '^[A-Z0-9]{6}$'),
+  host_user_id uuid not null references auth.users(id) on delete cascade,
+  guest_user_id uuid references auth.users(id) on delete set null,
+  host_vessel_id text not null,
+  guest_vessel_id text,
+  status text not null default 'waiting' check (status in ('waiting', 'matched', 'finished', 'cancelled')),
+  created_at timestamptz not null default now(),
+  matched_at timestamptz
+);
+
+create index if not exists battle_rooms_waiting_index
+  on public.battle_rooms (status, created_at) where status = 'waiting';
+
 alter table public.profiles enable row level security;
 alter table public.unlocked_vessels enable row level security;
 alter table public.vessel_creations enable row level security;
 alter table public.daily_vessel_stats enable row level security;
+alter table public.battle_rooms enable row level security;
 
 create policy "Users can read their profile"
   on public.profiles for select using (auth.uid() = id);

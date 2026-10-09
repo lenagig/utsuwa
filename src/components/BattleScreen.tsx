@@ -21,6 +21,7 @@ type Effects = Record<Side, Partial<Record<TimedEffect, number>>>;
 
 type Props = {
   onBack: () => void;
+  onOpenOnline: () => void;
   onSelectVessel: (id: string) => void;
   vessels: Vessel[];
   selectedVessel: Vessel | null;
@@ -40,7 +41,7 @@ const effectLabel: Record<TimedEffect, string> = {
   invincible: "復活無敵",
 };
 
-export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }: Props) {
+export function BattleScreen({ onBack, onOpenOnline, onSelectVessel, vessels, selectedVessel }: Props) {
   const [mode, setMode] = useState<Mode>("ready");
   const [challenge, setChallenge] = useState(false);
   const [playerHp, setPlayerHp] = useState(100);
@@ -428,6 +429,7 @@ export function BattleScreen({ onBack, onSelectVessel, vessels, selectedVessel }
             rivalHpRef.current = nextRivalHp;
             setRivalHp(nextRivalHp);
           }} type="checkbox"/>チャレンジ：敵は全能力・HP300・シールド5枚／あなたは3ストック</label>
+          <button className={styles.onlineButton} disabled={!selectedVessel} onClick={onOpenOnline}>ONLINE MATCH　オンライン対戦</button>
         </>}
         {mode === "playing" ? <div className={styles.touchControls}>
           <button aria-label="左へ移動" className={styles.moveButton} onLostPointerCapture={endTouchMove} onPointerCancel={endTouchMove} onPointerDown={(event) => beginTouchMove(event, 1)} onPointerUp={endTouchMove}>‹</button>

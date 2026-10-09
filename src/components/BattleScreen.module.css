@@ -417,6 +417,27 @@
     accent-color: #e89123
 }
 
+.onlineButton {
+    width: 100%;
+    min-height: 42px;
+    margin-top: 10px;
+    border: 1px solid #5cb8ff;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #102c49dd, #163d62dd);
+    color: #dff3ff;
+    font: 700 .72rem Arial;
+    letter-spacing: .08em;
+    box-shadow: 0 7px 20px #0008
+}
+
+.onlineButton:disabled {
+    opacity: .45
+}
+
+.onlineButton:not(:disabled):hover {
+    filter: brightness(1.15)
+}
+
 .shield,
 .enraged {
     display: block;

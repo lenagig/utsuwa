@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { AuthScreen } from "@/components/AuthScreen";
 import { BattleScreen } from "@/components/BattleScreen";
+import { OnlineMatchScreen } from "@/components/OnlineMatchScreen";
 import { CatalogScreen } from "@/components/CatalogScreen";
 import { ResultScreen } from "@/components/ResultScreen";
 import { TitleScreen } from "@/components/TitleScreen";
@@ -13,7 +14,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { IrritationForecast } from "@/lib/irritation-weather";
 import type { Vessel } from "@/types/vessel";
 
-type View = "title" | "auth" | "result" | "catalog" | "battle" | "weather";
+type View = "title" | "auth" | "result" | "catalog" | "battle" | "online-match" | "weather";
 type ResultSource = "input" | "catalog";
 
 type AccountResponse = {
@@ -148,7 +149,11 @@ export function UtsuwaExperience() {
   }
 
   if (view === "battle") {
-    return <BattleScreen onBack={() => setView("title")} onSelectVessel={setBattleVesselId} selectedVessel={battleVessel} vessels={unlockedVessels} />;
+    return <BattleScreen onBack={() => setView("title")} onOpenOnline={() => setView("online-match")} onSelectVessel={setBattleVesselId} selectedVessel={battleVessel} vessels={unlockedVessels} />;
+  }
+
+  if (view === "online-match" && session) {
+    return <OnlineMatchScreen accessToken={session.access_token} onBack={() => setView("battle")} vessel={battleVessel} />;
   }
 
   if (view === "weather") {
